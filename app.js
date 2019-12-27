@@ -1,7 +1,7 @@
 'use strict';
 
-const Koa = require('koa');
 const path = require('path');
+const Koa = require('koa');
 const config = require('config');
 const koaJwt = require('koa-jwt');
 const cors = require('@koa/cors');
@@ -9,9 +9,9 @@ const koaBody = require('koa-body');
 const onerror = require('koa-onerror');
 const favicon = require('koa-favicon');
 const validate = require('koa-validate');
-const {pathToRegexp} = require('path-to-regexp');
 const staticCache = require('koa-static-cache');
 const render = require('koa-ejs');
+const {pathToRegexp} = require('path-to-regexp');
 
 const util = require('./util');
 const logger = require('./util/logger');
@@ -42,7 +42,10 @@ app
     .use(serveStatic('/upload', path.resolve(__dirname, 'config', uploadConf.dir)))
     .use(logger)
     .use(middleware.util)
-    .use(cors({credentials: true, maxAge: 2592000}))
+    .use(cors({
+        credentials: true,
+        maxAge: 2592000,
+    }))
     .use(koaJwt({secret: jwtSecret}).unless((ctx) => {
         if (/^\/api/.test(ctx.path)) {
             return pathToRegexp([
