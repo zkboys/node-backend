@@ -2,7 +2,7 @@
 
 const config = require('config');
 const ipFilter = require('ip-filter');
-const pathToRegexp = require('path-to-regexp');
+const {pathToRegexp} = require('path-to-regexp');
 
 const blackProjects = config.get('blackList.projects');
 const blackIPs = config.get('blackList.ips');
@@ -15,35 +15,32 @@ const codeMap = {
     10001: 'params error',
 };
 
-const utilFn = {
-    resuccess(data) {
-        return {
-            code: 200,
-            success: true,
-            message: codeMap['200'],
-            data: data || null,
-        };
-    },
-    refail(message, code, data) {
-        return {
-            code: code || -1,
-            success: false,
-            message: message || codeMap[code],
-            data: data || null,
-        };
-    },
-};
+function success(data) {
+    if (data) this.body = data;
+    return this.body;
+}
+
+function fail(message, code = -1, data = null) {
+    this.response.status = 400;
+    this.body = {
+        code,
+        message: message || codeMap[code],
+        data,
+    };
+    return this.body;
+}
 
 module.exports = class Middleware {
     static util(ctx, next) {
         ctx.set('X-Request-Id', ctx.req.id);
-        ctx.util = utilFn;
+        ctx.success = success.bind(ctx);
+        ctx.fail = fail.bind(ctx);
         return next();
     }
 
     static ipFilter(ctx, next) {
         if (ipFilter(ctx.ip, blackIPs, {strict: false})) {
-            ctx.body = utilFn.refail('请求频率太快，已被限制访问');
+            ctx.fail('请求频率太快，已被限制访问');
             return;
         }
         return next();
@@ -54,7 +51,7 @@ module.exports = class Middleware {
 
         if (!pathNode) ctx.throw(404);
         if (blackProjects.indexOf(pathNode[1]) !== -1) {
-            ctx.body = ctx.util.refail('接口请求频率太快，已被限制访问');
+            ctx.fail('接口请求频率太快，已被限制访问');
             return;
         }
 

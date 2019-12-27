@@ -1,4 +1,10 @@
 {
-  "presets": ["env", "stage-0"],
-  "plugins": ["transform-vue-jsx"]
+    "presets": [
+        "@babel/env"
+    ],
+    "plugins": [
+        "@babel/plugin-proposal-function-bind",
+        "@babel/plugin-transform-runtime"
+    ]
 }
+

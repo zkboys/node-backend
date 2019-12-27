@@ -22,6 +22,7 @@ module.exports = class UtilController {
 
     static async wallpaper(ctx) {
         const cache = unsplashCache.get('one');
+        // const cache = null;
         const wallpaperAPI = unsplashClientId /* istanbul ignore next */
             ? 'https://api.unsplash.com/photos/random?orientation=landscape&count=1&client_id=' + unsplashClientId
             : 'https://cn.bing.com/HPImageArchive.aspx?format=js&n=1';
@@ -33,11 +34,11 @@ module.exports = class UtilController {
 
         try {
             const res = await axios.get(wallpaperAPI);
-            ctx.body = unsplashClientId /* istanbul ignore next */
-                ? ctx.util.resuccess({type: 'unsplash', data: res.data})
-                : ctx.util.resuccess({type: 'bing', data: res.data.images});
+            unsplashClientId /* istanbul ignore next */
+                ? ctx.success({type: 'unsplash', data: res.data})
+                : ctx.success({type: 'bing', data: res.data.images});
         } catch (error) {
-            ctx.body = ctx.util.resuccess({
+            ctx.success({
                 type: 'bing',
                 data: [{
                     url: '/az/hprichbg/rb/SWFC_ZH-CN9558503653_1920x1080.jpg',
@@ -45,6 +46,7 @@ module.exports = class UtilController {
                 }],
             });
         }
+
         unsplashCache.set('one', ctx.body);
     }
 
@@ -70,12 +72,12 @@ module.exports = class UtilController {
         if (!fs.existsSync(uploadDir)) mkdirp.sync(uploadDir);
 
         if (uploadConf.types.indexOf(suffix) === -1) {
-            ctx.body = ctx.util.refail(`上传失败，仅支持 ${uploadConf.types.join('/').replace(/\./g, '')} 文件类型`);
+            ctx.fail(`上传失败，仅支持 ${uploadConf.types.join('/').replace(/\./g, '')} 文件类型`);
             return;
         }
 
         if (file.size > uploadConf.size) {
-            ctx.body = ctx.util.refail('上传失败，超过限定大小');
+            ctx.fail('上传失败，超过限定大小');
             return;
         }
 
@@ -83,7 +85,7 @@ module.exports = class UtilController {
         stream = fs.createWriteStream(path.join(uploadDir, fileName));
         reader.pipe(stream);
 
-        ctx.body = ctx.util.resuccess({
+        ctx.success({
             path: new URL(path.join('upload', date, fileName), origin).href,
             expire: expireDay > 0
                 ? moment().add(expireDay, 'days').format('YYYY-MM-DD 00:00:00')

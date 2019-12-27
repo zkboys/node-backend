@@ -7,7 +7,7 @@ const rimraf = require('rimraf');
 const Redis = require('ioredis');
 const moment = require('moment');
 const bcrypt = require('bcryptjs');
-const pathToRegexp = require('path-to-regexp');
+const {pathToRegexp} = require('path-to-regexp');
 const {MockCountProxy} = require('../proxy');
 
 const redis = new Redis(config.get('redis'));

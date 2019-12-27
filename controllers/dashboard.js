@@ -62,6 +62,6 @@ module.exports = class DashboardController {
       cache.set('list', result)
     }
 
-    ctx.body = ctx.util.resuccess(result)
+    ctx.success(result)
   }
 }

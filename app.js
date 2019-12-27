@@ -6,7 +6,7 @@ const config = require('config');
 const koaJwt = require('koa-jwt');
 const cors = require('@koa/cors');
 const koaBody = require('koa-body');
-const onerror = require('koa-onerror');
+// const onerror = require('koa-onerror');
 const favicon = require('koa-favicon');
 const validate = require('koa-validate');
 const staticCache = require('koa-static-cache');
@@ -23,7 +23,7 @@ const uploadConf = config.get('upload');
 const jwtSecret = config.get('jwt.secret');
 
 util.init();
-onerror(app);
+// onerror(app);
 validate(app);
 
 render(app, {
@@ -35,13 +35,13 @@ render(app, {
 });
 
 app
+    .use(middleware.util)
     .use(middleware.ipFilter)
     .use(favicon(path.join(__dirname, '/public/images/icon.png')))
     .use(serveStatic('/dist', './dist'))
     .use(serveStatic('/public', './public'))
     .use(serveStatic('/upload', path.resolve(__dirname, 'config', uploadConf.dir)))
     .use(logger)
-    .use(middleware.util)
     .use(cors({
         credentials: true,
         maxAge: 2592000,
@@ -68,6 +68,7 @@ app
 
 app.proxy = config.get('proxy');
 
+// FIXME HTTPS 方式启动
 /* istanbul ignore if */
 if (!module.parent) {
     const port = config.get('port');

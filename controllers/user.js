@@ -47,14 +47,14 @@ module.exports = class UserController {
         const password = ctx.checkBody('password').notEmpty().len(6, 20).value;
 
         if (ctx.errors) {
-            ctx.body = ctx.util.refail(null, 10001, ctx.errors);
+            ctx.fail(null, 10001, ctx.errors);
             return;
         }
 
         let user = await UserProxy.getByName(name);
 
         if (user) {
-            ctx.body = ctx.util.refail('用户名已被使用');
+            ctx.fail('用户名已被使用');
             return;
         }
 
@@ -62,7 +62,7 @@ module.exports = class UserController {
 
         await createUser(name, newPassword);
 
-        ctx.body = ctx.util.resuccess();
+        ctx.success();
     }
 
     /**
@@ -76,7 +76,7 @@ module.exports = class UserController {
         const password = ctx.checkBody('password').notEmpty().value;
 
         if (ctx.errors) {
-            ctx.body = ctx.util.refail(null, 10001, ctx.errors);
+            ctx.fail(null, 10001, ctx.errors);
             return;
         }
 
@@ -88,7 +88,7 @@ module.exports = class UserController {
             try {
                 verifyPassword = await ldapUtil.authenticate(name, password, ldapClient);
             } catch (error) {
-                ctx.body = ctx.util.refail(error.message);
+                ctx.fail(error.message);
                 return;
             } finally {
                 ldapUtil.closeClient(ldapClient);
@@ -98,20 +98,20 @@ module.exports = class UserController {
             }
         } else {
             if (!user) {
-                ctx.body = ctx.util.refail('用户不存在');
+                ctx.fail('用户不存在');
                 return;
             }
             verifyPassword = util.bcompare(password, user.password);
         }
 
         if (!verifyPassword) {
-            ctx.body = ctx.util.refail('用户名或密码错误');
+            ctx.fail('用户名或密码错误');
             return;
         }
 
         user.token = jwt.sign({id: user.id}, jwtSecret, {expiresIn: jwtExpire});
 
-        ctx.body = ctx.util.resuccess(_.pick(user, ft.user));
+        ctx.success(_.pick(user, ft.user));
     }
 
     /**
@@ -125,7 +125,7 @@ module.exports = class UserController {
         const headImg = ctx.checkBody('head_img').empty().isUrl(null, {allow_underscores: true, allow_protocol_relative_urls: true}).value;
 
         if (ctx.errors) {
-            ctx.body = ctx.util.refail(null, 10001, ctx.errors);
+            ctx.fail(null, 10001, ctx.errors);
             return;
         }
 
@@ -137,7 +137,7 @@ module.exports = class UserController {
 
         await UserProxy.update(user);
 
-        ctx.body = ctx.util.resuccess();
+        ctx.success();
     }
 
     /**
@@ -153,7 +153,7 @@ module.exports = class UserController {
         const keywords = ctx.query.keywords;
 
         if (ctx.errors) {
-            ctx.body = ctx.util.refail(null, 10001, ctx.errors);
+            ctx.fail(null, 10001, ctx.errors);
             return;
         }
 
@@ -180,7 +180,7 @@ module.exports = class UserController {
 
         const users = await UserProxy.find(where, opt);
 
-        ctx.body = ctx.util.resuccess(
+        ctx.success(
             users.map(user => _.pick(user, ft.user)),
         );
     }

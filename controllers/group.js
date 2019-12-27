@@ -17,20 +17,20 @@ module.exports = class GroupController {
     const uid = ctx.state.user.id
 
     if (ctx.errors) {
-      ctx.body = ctx.util.refail(null, 10001, ctx.errors)
+      ctx.fail(null, 10001, ctx.errors)
       return
     }
 
     const doc = await GroupProxy.findByName(name)
 
     if (doc) {
-      ctx.body = ctx.util.refail(`团队 ${name} 已存在`)
+      ctx.fail(`团队 ${name} 已存在`)
       return
     }
 
     await GroupProxy.newAndSave({ user: uid, name })
 
-    ctx.body = ctx.util.resuccess()
+    ctx.success()
   }
 
   /**
@@ -51,7 +51,7 @@ module.exports = class GroupController {
       groups = groups.map(o => _.pick(o.group, ft.group))
     }
 
-    ctx.body = ctx.util.resuccess(groups)
+    ctx.success(groups)
   }
 
   /**
@@ -64,13 +64,13 @@ module.exports = class GroupController {
     const id = ctx.checkBody('id').notEmpty().value
 
     if (ctx.errors) {
-      ctx.body = ctx.util.refail(null, 10001, ctx.errors)
+      ctx.fail(null, 10001, ctx.errors)
       return
     }
 
     await UserGroupProxy.newAndSave({ user: uid, group: id })
 
-    ctx.body = ctx.util.resuccess()
+    ctx.success()
   }
 
   /**
@@ -83,7 +83,7 @@ module.exports = class GroupController {
     const id = ctx.checkBody('id').notEmpty().value
 
     if (ctx.errors) {
-      ctx.body = ctx.util.refail(null, 10001, ctx.errors)
+      ctx.fail(null, 10001, ctx.errors)
       return
     }
 
@@ -93,7 +93,7 @@ module.exports = class GroupController {
 
     if (group) { // 团队创建者删除团队
       if (projects.length > 0) {
-        ctx.body = ctx.util.refail('解散团队前请先删除该团队下所有的项目')
+        ctx.fail('解散团队前请先删除该团队下所有的项目')
         return
       }
       await GroupProxy.del({ _id: id })
@@ -103,7 +103,7 @@ module.exports = class GroupController {
       await UserProjectProxy.del({ user: uid, project: { $in: projectIds } })
     }
 
-    ctx.body = ctx.util.resuccess()
+    ctx.success()
   }
 
   /**
@@ -117,26 +117,26 @@ module.exports = class GroupController {
     const name = ctx.checkBody('name').notEmpty().len(3, 16).value
 
     if (ctx.errors) {
-      ctx.body = ctx.util.refail(null, 10001, ctx.errors)
+      ctx.fail(null, 10001, ctx.errors)
       return
     }
 
     let group = await GroupProxy.findOne({ _id: id, user: uid })
 
     if (!group) {
-      ctx.body = ctx.util.refail('非团队创建者无法更新团队信息')
+      ctx.fail('非团队创建者无法更新团队信息')
       return
     }
 
     group = await GroupProxy.findByName(name)
 
     if (group) {
-      ctx.body = ctx.util.refail(`团队 ${name} 已存在`)
+      ctx.fail(`团队 ${name} 已存在`)
       return
     }
 
     await GroupProxy.updateById(id, { name })
 
-    ctx.body = ctx.util.resuccess()
+    ctx.success()
   }
 }
