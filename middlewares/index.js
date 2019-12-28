@@ -34,8 +34,8 @@ function fail(message, code = -1, data = null) {
 module.exports = class Middleware {
     static util(ctx, next) {
         ctx.set('X-Request-Id', ctx.req.id);
-        ctx.success = success.bind(ctx);
-        ctx.fail = fail.bind(ctx);
+        ctx.success = success;
+        ctx.fail = fail;
         return next();
     }
 
