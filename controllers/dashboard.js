@@ -5,7 +5,7 @@ const LRU = require('lru-cache')
 
 const { Project, Mock, MockCount, User } = require('../models')
 
-const cache = LRU({ max: 1, maxAge: 1000 * 60 * 60 })
+const cache = new LRU({ max: 1, maxAge: 1000 * 60 * 60 })
 
 /**
  * 获取 Mock 使用次数
@@ -62,6 +62,6 @@ module.exports = class DashboardController {
       cache.set('list', result)
     }
 
-    ctx.body = ctx.util.resuccess(result)
+    ctx.success(result)
   }
 }

@@ -7,7 +7,7 @@ const JSZip = require('jszip')
 const Mock = require('mockjs')
 const axios = require('axios')
 const config = require('config')
-const pathToRegexp = require('path-to-regexp')
+const {pathToRegexp} = require('path-to-regexp')
 
 const util = require('../util')
 const ft = require('../models/fields_table')
@@ -60,14 +60,14 @@ module.exports = class MockController {
     const method = ctx.checkBody('method').notEmpty().toLow().in(['get', 'post', 'put', 'delete', 'patch']).value
 
     if (ctx.errors) {
-      ctx.body = ctx.util.refail(null, 10001, ctx.errors)
+      ctx.fail(null, 10001, ctx.errors)
       return
     }
 
     const project = await checkByProjectId(projectId, uid)
 
     if (typeof project === 'string') {
-      ctx.body = ctx.util.refail(project)
+      ctx.fail(project)
       return
     }
 
@@ -78,7 +78,7 @@ module.exports = class MockController {
     })
 
     if (api) {
-      ctx.body = ctx.util.refail('请检查接口是否已经存在')
+      ctx.fail('请检查接口是否已经存在')
       return
     }
 
@@ -91,7 +91,7 @@ module.exports = class MockController {
     })
 
     await redis.del('project:' + projectId)
-    ctx.body = ctx.util.resuccess()
+    ctx.success()
   }
 
   /**
@@ -107,7 +107,7 @@ module.exports = class MockController {
     const pageIndex = ctx.checkQuery('page_index').empty().toInt().gt(0).default(1).value
 
     if (ctx.errors) {
-      ctx.body = ctx.util.refail(null, 10001, ctx.errors)
+      ctx.fail(null, 10001, ctx.errors)
       return
     }
 
@@ -146,7 +146,7 @@ module.exports = class MockController {
 
     mocks = mocks.map(o => _.pick(o, ft.mock))
 
-    ctx.body = ctx.util.resuccess({ project: project || {}, mocks })
+    ctx.success({ project: project || {}, mocks })
   }
 
   /**
@@ -163,14 +163,14 @@ module.exports = class MockController {
     const method = ctx.checkBody('method').notEmpty().toLow().in(['get', 'post', 'put', 'delete', 'patch']).value
 
     if (ctx.errors) {
-      ctx.body = ctx.util.refail(null, 10001, ctx.errors)
+      ctx.fail(null, 10001, ctx.errors)
       return
     }
 
     const result = await checkByMockId(id, uid)
 
     if (typeof result === 'string') {
-      ctx.body = ctx.util.refail(result)
+      ctx.fail(result)
       return
     }
 
@@ -189,13 +189,13 @@ module.exports = class MockController {
     })
 
     if (existMock) {
-      ctx.body = ctx.util.refail('接口已经存在')
+      ctx.fail('接口已经存在')
       return
     }
 
     await MockProxy.updateById(api)
     await redis.del('project:' + project.id)
-    ctx.body = ctx.util.resuccess()
+    ctx.success()
   }
 
   /**
@@ -254,7 +254,7 @@ module.exports = class MockController {
           headers: ctx.headers
         }).then(res => res.data)
       } catch (error) {
-        ctx.body = ctx.util.refail(error.message || '接口请求失败')
+        ctx.fail(error.message || '接口请求失败')
         return
       }
     } else {
@@ -314,7 +314,7 @@ module.exports = class MockController {
     let projectIds = ctx.checkQuery('project_ids').notEmpty().value
 
     if (ctx.errors) {
-      ctx.body = ctx.util.refail(null, 10001, ctx.errors)
+      ctx.fail(null, 10001, ctx.errors)
       return
     }
 
@@ -346,7 +346,7 @@ module.exports = class MockController {
       }
     })
 
-    ctx.body = ctx.util.resuccess(result)
+    ctx.success(result)
   }
 
   /**
@@ -361,7 +361,7 @@ module.exports = class MockController {
     let apis
 
     if (ctx.errors) {
-      ctx.body = ctx.util.refail(null, 10001, ctx.errors)
+      ctx.fail(null, 10001, ctx.errors)
       return
     }
 
@@ -374,12 +374,12 @@ module.exports = class MockController {
         }
       })
     } else {
-      ctx.body = ctx.util.refail('参数不能为空')
+      ctx.fail('参数不能为空')
       return
     }
 
     if (_.isEmpty(apis)) {
-      ctx.body = ctx.util.refail('没有可导出的接口')
+      ctx.fail('没有可导出的接口')
       return
     }
 
@@ -404,14 +404,14 @@ module.exports = class MockController {
     const ids = ctx.checkBody('ids').notEmpty().type('array').value
 
     if (ctx.errors) {
-      ctx.body = ctx.util.refail(null, 10001, ctx.errors)
+      ctx.fail(null, 10001, ctx.errors)
       return
     }
 
     const project = await checkByProjectId(projectId, uid)
 
     if (typeof project === 'string') {
-      ctx.body = ctx.util.refail(project)
+      ctx.fail(project)
       return
     }
 
@@ -424,6 +424,6 @@ module.exports = class MockController {
 
     await MockProxy.delByIds(ids)
     await redis.del('project:' + projectId)
-    ctx.body = ctx.util.resuccess()
+    ctx.success()
   }
 }
