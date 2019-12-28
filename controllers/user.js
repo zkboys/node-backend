@@ -44,14 +44,14 @@ module.exports = class UserController {
 
     static async register(ctx) {
         const name = ctx.checkBody('name').notEmpty().len(4, 20).value;
-        const password = ctx.checkBody('password').notEmpty().len(6, 20).value;
+        const password = ctx.checkBody('password').notEmpty().len(3, 20).value;
 
         if (ctx.errors) {
             ctx.fail(null, 10001, ctx.errors);
             return;
         }
 
-        let user = await UserProxy.getByName(name);
+        const user = await UserProxy.getByName(name);
 
         if (user) {
             ctx.fail('用户名已被使用');
@@ -63,6 +63,8 @@ module.exports = class UserController {
         await createUser(name, newPassword);
 
         ctx.success();
+        console.log(name);
+        console.log(password);
     }
 
     /**
@@ -84,7 +86,7 @@ module.exports = class UserController {
 
         /* istanbul ignore if */
         if (ldapUtil.enable) {
-            let ldapClient = await ldapUtil.createClient();
+            const ldapClient = await ldapUtil.createClient();
             try {
                 verifyPassword = await ldapUtil.authenticate(name, password, ldapClient);
             } catch (error) {

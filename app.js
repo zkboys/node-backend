@@ -10,12 +10,12 @@ const koaBody = require('koa-body');
 const favicon = require('koa-favicon');
 const validate = require('koa-validate');
 const staticCache = require('koa-static-cache');
-const render = require('koa-ejs');
 const {pathToRegexp} = require('path-to-regexp');
 
 const util = require('./util');
 const logger = require('./util/logger');
 const middleware = require('./middlewares');
+const render = require('./middlewares/layout-ejs');
 const routerConfig = require('./router-config');
 
 const app = module.exports = new Koa();
@@ -82,6 +82,7 @@ function serveStatic(prefix, filePath) {
         prefix: prefix,
         gzip: true,
         dynamic: true,
-        maxAge: 60 * 60 * 24 * 30,
+        // FIXME 静态文件缓存怎么设置
+        // maxAge: 60 * 60 * 24 * 30,
     });
 }

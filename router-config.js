@@ -32,13 +32,19 @@ const rate = ratelimit({
     },
 });
 
+function renderPage(page) {
+    return async function (ctx) {
+        await ctx.render(page);
+    };
+}
+
 exports.mock = mockRouter
     .all('*', middleware.mockFilter, rate, restc, mock.getMockAPI);
 
+// ctx.state 可以给模版传递数据
 exports.page = pageRouter
-    .get('/', async function (ctx) {
-        await ctx.render('index');
-    });
+    .get('/', renderPage('index'))
+    .get('/register', renderPage('register'));
 
 exports.api = apiRouter
     .get('/wallpaper', util.wallpaper)

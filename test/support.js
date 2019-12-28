@@ -16,10 +16,10 @@ class Support {
         return request(app.listen())
             .post('/api/u/login')
             .send({name, password})
-            .then(res => res.body.data);
+            .then(res => res.body);
     }
 
-    static createUser(name = 'admin', password = '123456') {
+    static createUser(name = 'admin6', password = '123') {
         return request(app.listen())
             .post('/api/u/register')
             .send({name, password})

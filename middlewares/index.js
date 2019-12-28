@@ -16,6 +16,7 @@ const codeMap = {
 };
 
 function success(data) {
+    this.response.status = 200;
     if (data) this.body = data;
     return this.body;
 }
