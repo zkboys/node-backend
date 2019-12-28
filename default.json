@@ -3,7 +3,7 @@
     "host": "0.0.0.0",
     "pageSize": 30,
     "proxy": false,
-    "db": "mongodb://zkboys:zkboys110@134.175.116.254:27017/zkboys",
+    "db": "mongodb://localhost/zkboys",
     "unsplashClientId": "",
     "redis": {
         "keyPrefix": "[Easy Mock]",
