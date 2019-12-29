@@ -13,6 +13,7 @@ describe('koa-validate', function () {
         const app = appFactory.create(1);
 
         app.router.post('/upload', async function (ctx) {
+            console.log(ctx);
             ctx.checkFile('empty').empty();
             // this.checkFile('file1').empty().contentTypeMatch(/^text/);
             ctx.checkFile('file').empty().contentTypeMatch(/^application\//);

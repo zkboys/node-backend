@@ -1,7 +1,7 @@
 'use strict';
 
 const Koa = require('koa');
-const validate = require('../validate');
+const validate = require('../index');
 const router = require('koa-router')();
 const koaBody = require('koa-body');
 
@@ -13,12 +13,12 @@ exports.create = function (type) {
     } else {
         app.use(koaBody());
     }
-    app.use(async function (ctx, next) {
+    app.use(function (ctx, next) {
         try {
-            next();
+            return next();
         } catch (err) {
             console.log(err.stack);
-            this.app.emit('error', err, this);
+            this.app.emit('error', err, ctx);
         }
     });
     app

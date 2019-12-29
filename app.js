@@ -8,7 +8,7 @@ const cors = require('@koa/cors');
 const koaBody = require('koa-body');
 // const onerror = require('koa-onerror');
 const favicon = require('koa-favicon');
-const validate = require('koa-validate');
+// const validate = require('koa-validate');
 const staticCache = require('koa-static-cache');
 const {pathToRegexp} = require('path-to-regexp');
 
@@ -16,6 +16,9 @@ const util = require('./util');
 const logger = require('./util/logger');
 const middleware = require('./middlewares');
 const render = require('./middlewares/layout-ejs');
+const validate = require('./middlewares/validate');
+const zhCn = require('./middlewares/validate/i18n/zh-cn');
+
 const routerConfig = require('./router-config');
 
 const app = module.exports = new Koa();
@@ -24,7 +27,7 @@ const jwtSecret = config.get('jwt.secret');
 
 util.init();
 // onerror(app);
-validate(app);
+validate(app, zhCn);
 
 render(app, {
     root: path.join(__dirname, 'views'),

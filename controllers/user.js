@@ -39,8 +39,8 @@ async function createUser(name, password) {
 module.exports = class UserController {
     // 新用户注册
     static async register(ctx) {
-        const name = ctx.checkBody('name').notEmpty().len(4, 20).value;
-        const password = ctx.checkBody('password').notEmpty().len(3, 20, '密码长度必须为3~20位').value;
+        const name = ctx.checkBody('name').label('用户名').notEmpty().len(4, 20).value;
+        const password = ctx.checkBody('password').label('密码').notEmpty().len(3, 20).value;
 
         if (ctx.errors) return ctx.fail(null, 10001, ctx.errors);
 
@@ -53,8 +53,6 @@ module.exports = class UserController {
         await createUser(name, newPassword);
 
         ctx.success();
-        console.log(name);
-        console.log(password);
     }
 
     // 用户登录

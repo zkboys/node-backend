@@ -18,6 +18,10 @@
             text-align: right;
         }
 
+        .error {
+            color: red;
+        }
+
     </style>
 </head>
 
@@ -38,8 +42,10 @@
             <button id="login" class="form-button">登录</button>
             <button id="project" class="form-button">请求</button>
         </div>
+        <div class="error"></div>
     </div>
 </div>
+<h1>5555</h1>
 <script src="/public/main.js"></script>
 <script>
 
@@ -61,13 +67,13 @@
                 console.log(res);
             },
             error: function (err) {
-                console.log(err);
+
+                $('.error').html(JSON.stringify(err.responseJSON.data || err.responseJSON.message, null, 4));
             },
         });
     });
 
     $('#login').on('click', function () {
-
         const name = $('#name').val();
         const password = $('#password').val();
         const data = {
