@@ -7,6 +7,11 @@
 'use strict';
 
 /**
+ * 基于koa-ejs 修改，支持head script 标签单独加入模板对应位置中
+ * ctx.state ejs文件中可以使用
+ * */
+
+/**
  * Module dependencies.
  */
 const path = require('path');
@@ -14,12 +19,11 @@ const debug = require('debug')('koa-ejs');
 const fs = require('mz').fs;
 const ejs = require('ejs');
 
-
 function getHead(str) {
     // 去除注释
     const html = str.replace(/<!--[\s\S]*?-->/, '');
-    const head = html.match(/<head>([\s\S]*?)<\/head>/)[1];
-    return head || '';
+    const heads = html.match(/<head>([\s\S]*?)<\/head>/);
+    return heads ? heads[1] : '';
 }
 
 function getScript(str) {

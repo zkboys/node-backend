@@ -37,26 +37,16 @@ async function createUser(name, password) {
 }
 
 module.exports = class UserController {
-    /**
-     * 用户注册
-     * @param Object ctx
-     */
-
+    // 新用户注册
     static async register(ctx) {
         const name = ctx.checkBody('name').notEmpty().len(4, 20).value;
-        const password = ctx.checkBody('password').notEmpty().len(3, 20).value;
+        const password = ctx.checkBody('password').notEmpty().len(3, 20, '密码长度必须为3~20位').value;
 
-        if (ctx.errors) {
-            ctx.fail(null, 10001, ctx.errors);
-            return;
-        }
+        if (ctx.errors) return ctx.fail(null, 10001, ctx.errors);
 
         const user = await UserProxy.getByName(name);
 
-        if (user) {
-            ctx.fail('用户名已被使用');
-            return;
-        }
+        if (user) return ctx.fail('用户名已被使用');
 
         const newPassword = util.bhash(password);
 
@@ -67,11 +57,7 @@ module.exports = class UserController {
         console.log(password);
     }
 
-    /**
-     * 用户登录
-     * @param Object ctx
-     */
-
+    // 用户登录
     static async login(ctx) {
         let verifyPassword;
         const name = ctx.checkBody('name').notEmpty().value;

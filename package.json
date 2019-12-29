@@ -8,7 +8,7 @@
         "test:watch": "yarn test -- --watch",
         "test:cover": "yarn test -- --coverage",
         "lint": "eslint --ignore-path .gitignore . --quiet --ext .vue,.js",
-        "start": "nodemon --ignore views/ --ignore public/ app",
+        "start": "cross-env NODE_ENV=development nodemon --ignore views/ --ignore public/ app",
         "dev:client": "node app",
         "dev:server": "cross-env NODE_ENV=production yarn  dev",
         "pro": "cross-env NODE_ENV=production node app",
