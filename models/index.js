@@ -17,6 +17,13 @@ mongoose.connect(config.get('db'), {
 
 mongoose.set('useCreateIndex', true);
 
+// 全局plugin 用于统一操作schema
+mongoose.plugin(function (schema, options) {
+    // schema.add 用来添加额外的字段
+    // schema.set 用来设置属性
+    // 自动处理createdAt updatedAt 两个字段 https://mongoosejs.com/docs/guide.html#timestamps
+    schema.set('timestamps', {createdAt: 'createdAt', updatedAt: 'updatedAt'});
+});
 
 module.exports = {
     User: require('./user'),

@@ -8,23 +8,6 @@ const schema = new Schema({
     head_img: String,
     name: String,
     password: String,
-    create_at: {
-        type: Date,
-        default: Date.now,
-    },
-});
-
-// Duplicate the ID field.
-schema.virtual('id').get(function () {
-    return this._id.toHexString();
-});
-
-// Ensure virtual fields are serialised.
-// schema.set('toJSON', {
-//     virtuals: true,
-// });
-schema.set('toObject', {
-    virtuals: true,
 });
 
 schema.index({name: 1}, {unique: true});

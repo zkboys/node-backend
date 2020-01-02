@@ -5,7 +5,7 @@
 module.exports = {
     group: ['_id', 'name'],
     projectExtend: ['_id', 'is_workbench'],
-    user: ['id', 'name', 'nick_name', 'head_img', 'token'],
+    user: ['id', 'name', 'nick_name', 'head_img', 'token', 'createdAt', 'updatedAt'],
     mock: ['_id', 'url', 'method', 'description', 'mode', 'parameters', 'response_model'],
     project: ['_id', 'name', 'url', 'description', 'swagger_url', 'members', 'extend', 'group'],
 };
