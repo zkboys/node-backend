@@ -5,7 +5,6 @@ const config = require('config');
 const jwt = require('jsonwebtoken');
 
 const util = require('../util');
-const ldapUtil = require('../util/ldap');
 const mockUtil = require('../util/mock');
 const ft = require('../models/fields_table');
 const {UserProxy, ProjectProxy, MockProxy} = require('../proxy');
@@ -57,7 +56,6 @@ module.exports = class UserController {
 
     // 用户登录
     static async login(ctx) {
-        let verifyPassword;
         const name = ctx.checkBody('name').notEmpty().value;
         const password = ctx.checkBody('password').notEmpty().value;
 
@@ -66,29 +64,13 @@ module.exports = class UserController {
             return;
         }
 
-        let user = await UserProxy.getByName(name);
+        const user = await UserProxy.getByName(name);
 
-        /* istanbul ignore if */
-        if (ldapUtil.enable) {
-            const ldapClient = await ldapUtil.createClient();
-            try {
-                verifyPassword = await ldapUtil.authenticate(name, password, ldapClient);
-            } catch (error) {
-                ctx.fail(error.message);
-                return;
-            } finally {
-                ldapUtil.closeClient(ldapClient);
-            }
-            if (verifyPassword && !user) {
-                user = await createUser(name, util.bhash(password));
-            }
-        } else {
-            if (!user) {
-                ctx.fail('用户不存在');
-                return;
-            }
-            verifyPassword = util.bcompare(password, user.password);
+        if (!user) {
+            ctx.fail('用户不存在');
+            return;
         }
+        const verifyPassword = util.bcompare(password, user.password);
 
         if (!verifyPassword) {
             ctx.fail('用户名或密码错误');
