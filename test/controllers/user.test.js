@@ -21,19 +21,16 @@ describe('test/controllers/user.test.js', () => {
 
         test('注册用户', async () => {
             await request('/api/u/register', 'post')
-                .send({name: 'test1', password: '123456'})
-                .expect(200, {
-                    code: 200,
-                    message: 'success',
-                    success: true,
-                    data: null
-                });
+                .send({name: 'test211', password: '123456'})
+                .expect(200, 'OK');
         });
 
         test('重复注册', async () => {
             const res = await request('/api/u/register', 'post')
-                .send({name: 'test1', password: '123456'});
+                .send({name: 'test1', password: '123456'})
+                .expect(400);
 
+            console.log(res.body);
             expect(res.body.message).toBe('用户名已被使用');
         });
     });
@@ -49,7 +46,7 @@ describe('test/controllers/user.test.js', () => {
             const res = await request('/api/u/login', 'post')
                 .send({name: 'test2', password: '123456'});
 
-            expect(res.body.data.name).toBe('test2');
+            expect(res.body.name).toBe('test2');
         });
 
         test('用户名错误', async () => {
@@ -80,7 +77,7 @@ describe('test/controllers/user.test.js', () => {
                 .send({
                     nick_name: 'test2',
                     head_img: 'http://example.com/l.png',
-                    password: '1234567'
+                    password: '1234567',
                 });
 
             const u = await spt.login('test2', '1234567');
@@ -101,14 +98,14 @@ describe('test/controllers/user.test.js', () => {
         test('分页查询', async () => {
             const res = await request('/api/u');
 
-            expect(res.body.data).toHaveLength(1); // ['test1']
+            expect(res.body).toHaveLength(1); // ['test1']
         });
 
         test('关键词查询', async () => {
             const res = await request('/api/u')
                 .query({keywords: 'te'});
 
-            const data = res.body.data;
+            const data = res.body;
             expect(data).toHaveLength(1);
             expect(data[0].name).toBe('test1');
         });

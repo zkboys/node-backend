@@ -65,7 +65,6 @@ module.exports = class UserController {
         }
 
         const user = await UserProxy.getByName(name);
-        console.log(user);
 
         if (!user) {
             ctx.fail('用户不存在');

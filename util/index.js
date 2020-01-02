@@ -12,9 +12,6 @@ const {MockCountProxy} = require('../proxy');
 
 const redis = new Redis(config.get('redis'));
 
-redis.set('test', 123);
-console.log(redis.get('test').then(console.log));
-
 module.exports = class BaseUtil {
     /**
      * 初始化操作
