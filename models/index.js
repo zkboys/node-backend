@@ -17,6 +17,7 @@ mongoose.connect(config.get('db'), {
 
 mongoose.set('useCreateIndex', true);
 
+
 module.exports = {
     User: require('./user'),
     Mock: require('./mock'),

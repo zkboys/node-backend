@@ -14,6 +14,19 @@ const schema = new Schema({
     },
 });
 
+// Duplicate the ID field.
+schema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
+
+// Ensure virtual fields are serialised.
+// schema.set('toJSON', {
+//     virtuals: true,
+// });
+schema.set('toObject', {
+    virtuals: true,
+});
+
 schema.index({name: 1}, {unique: true});
 
 module.exports = mongoose.model('User', schema);

@@ -6,5 +6,5 @@ module.exports = {
     util: require('./util'),
     group: require('./group'),
     project: require('./project'),
-    dashboard: require('./dashboard')
+    dashboard: require('./dashboard'),
 };
