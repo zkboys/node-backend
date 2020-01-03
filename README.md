@@ -1,10 +1,10 @@
 # node 后端
 
 ## 相关资料
-[koa](https://github.com/koajs/koa)
-[redis](https://github.com/luin/ioredis)
-[mongodb](https://www.mongodb.com/)
-[mongoose](https://mongoosejs.com/)
+1. [koa](https://github.com/koajs/koa)
+1. [redis](https://github.com/luin/ioredis)
+1. [mongodb](https://www.mongodb.com/)
+1. [mongoose](https://mongoosejs.com/)
 
 
 ## 关于id
