@@ -59,34 +59,26 @@ module.exports = class UserController {
         const name = ctx.checkBody('name').notEmpty().value;
         const password = ctx.checkBody('password').notEmpty().value;
 
-        if (ctx.errors) {
-            ctx.fail(null, 10001, ctx.errors);
-            return;
-        }
+        if (ctx.errors) return ctx.fail(null, 10001, ctx.errors);
 
         const user = await UserProxy.getByName(name);
 
-        if (!user) {
-            ctx.fail('用户不存在');
-            return;
-        }
+        if (!user) return ctx.fail('用户不存在');
+
         const verifyPassword = util.bcompare(password, user.password);
 
-        if (!verifyPassword) {
-            ctx.fail('用户名或密码错误');
-            return;
-        }
+        if (!verifyPassword) return ctx.fail('用户名或密码错误');
 
         user.token = jwt.sign({id: user.id}, jwtSecret, {expiresIn: jwtExpire});
 
-        ctx.success(_.pick(user, ft.user));
+        return ctx.success(_.pick(user, ft.user));
     }
 
     /**
      * 更新用户信息
-     * @param Object ctx
+     * @param ctx
+     * @returns {Promise<void>}
      */
-
     static async update(ctx) {
         const password = ctx.checkBody('password').empty().len(6, 20).value;
         const nickName = ctx.checkBody('nick_name').empty().len(2, 20).value;
@@ -110,9 +102,9 @@ module.exports = class UserController {
 
     /**
      * 获取用户列表
-     * @param Object ctx
+     * @param ctx
+     * @returns {Promise<void>}
      */
-
     static async list(ctx) {
         const pageSize = ctx.checkQuery('page_size')
             .empty().toInt().gt(0).default(config.get('pageSize')).value;

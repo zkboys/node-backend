@@ -8,7 +8,7 @@
         "test:watch": "yarn test -- --watch",
         "test:cover": "yarn test -- --coverage",
         "lint": "eslint --ignore-path .gitignore . --quiet --ext .vue,.js",
-        "start": "cross-env NODE_ENV=development nodemon --ignore views/ --ignore public/ app",
+        "start": "cross-env nodemon --ignore views/ --ignore public/ app",
         "dev:client": "node app",
         "dev:server": "cross-env NODE_ENV=production yarn  dev",
         "pro": "cross-env NODE_ENV=production node app",
@@ -17,11 +17,10 @@
         "build:client": "webpack --config build/webpack.client.config.js --progress --hide-modules",
         "build:server": "webpack --config build/webpack.server.config.js --progress --hide-modules"
     },
-    "author": "Chuangker",
+    "author": "zkboys",
     "license": "GPL-3.0",
     "keywords": [
-        "easy-mock",
-        "mock"
+        "node-backend"
     ],
     "dependencies": {
         "@koa/cors": "^3.0.0",

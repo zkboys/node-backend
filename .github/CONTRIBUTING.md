@@ -1,8 +1,8 @@
-## Easy Mock Contributing Guide
+## Node Backend Contributing Guide
 
-Hi, Thank you for your attention to Easy Mock.
+Hi, Thank you for your attention to Node Backend.
 
-If you are willing to contribute code or provide suggestions for Easy Mock, please make sure to take a moment and read through the following guidelines.
+If you are willing to contribute code or provide suggestions for Node Backend, please make sure to take a moment and read through the following guidelines.
 
 ### Issue
 

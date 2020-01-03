@@ -18,7 +18,6 @@ const codeMap = {
 function success(data) {
     this.response.status = 200;
     if (data) this.body = data;
-    return this.body;
 }
 
 function fail(message, code = -1, data = null) {
@@ -28,7 +27,6 @@ function fail(message, code = -1, data = null) {
         message: message || codeMap[code],
         data,
     };
-    return this.body;
 }
 
 module.exports = class Middleware {
@@ -41,8 +39,7 @@ module.exports = class Middleware {
 
     static ipFilter(ctx, next) {
         if (ipFilter(ctx.ip, blackIPs, {strict: false})) {
-            ctx.fail('请求频率太快，已被限制访问');
-            return;
+            return ctx.fail('请求频率太快，已被限制访问');
         }
         return next();
     }
@@ -52,8 +49,7 @@ module.exports = class Middleware {
 
         if (!pathNode) ctx.throw(404);
         if (blackProjects.indexOf(pathNode[1]) !== -1) {
-            ctx.fail('接口请求频率太快，已被限制访问');
-            return;
+            return ctx.fail('接口请求频率太快，已被限制访问');
         }
 
         ctx.pathNode = {
