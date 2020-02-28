@@ -11,6 +11,18 @@ const {pathToRegexp} = require('path-to-regexp');
 
 const redis = new Redis(config.get('redis'));
 
+// 去掉redis，减少项目依赖
+// 但是开发时，服务反复重启，会导致token失效
+// const store = {};
+// const redis = {
+//     set(key, value) {
+//         store[key] = value;
+//     },
+//     get(key) {
+//         return Promise.resolve(store[key]);
+//     },
+// };
+
 module.exports = class BaseUtil {
     static getIp() {
         const interfaces = require('os').networkInterfaces();

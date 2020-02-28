@@ -22,3 +22,8 @@ yarn pro
 NODE_ENV
 PORT
 JWT_SECRET
+
+## TODO
+- [ ] API文档
+- [x] jwt退出登录问题
+

@@ -17,6 +17,7 @@ exports.api = apiRouter
     .post('/upload', util.upload)
 
     .post('/login', user.login)
+    .post('/logout', user.logout)
     .post('/register', user.register)
     .get('/users', user.findAll)
 ;

@@ -40,6 +40,7 @@
             <label for="register"></label>
             <button id="register" class="form-button">注册</button>
             <button id="login" class="form-button">登录</button>
+            <button id="logout" class="form-button">退出登录</button>
             <button id="users" class="form-button">请求所有用户</button>
         </div>
         <div class="error"></div>
@@ -115,13 +116,24 @@
             },
         });
     });
-    $('#users').on('click', function () {
 
-
+    $('#logout').on('click', function () {
         $.ajax({
-            // headers: {
-            //     Authorization: `Bearer ${token}`, // 授权 token使用方式
-            // },
+            type: 'POST',
+            url: '/api/logout',
+            success: function (res) {
+                console.log('logout success');
+            },
+            error: function (err) {
+                console.log(err);
+            },
+        });
+    });
+    $('#users').on('click', function () {
+        $.ajax({
+            headers: {
+                Authorization: `Bearer ${token}`, // 授权 token使用方式
+            },
             type: 'GET',
             url: '/api/users',
             success: function (res) {

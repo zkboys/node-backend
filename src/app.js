@@ -54,10 +54,12 @@ app
         credentials: true,
         maxAge: 2592000,
     }))
+    .use(middleware.getToken)
     .use(koaJwt({
+        // 获取token的优先级 getToken > cookie > Authorization header
         secret: jwtSecret,
         cookie: jwtCookieName,
-        getToken: (ctx) => ctx.request.header[String(jwtTokenName).toLowerCase()],
+        getToken: (ctx) => ctx.state.validateToken,
     }).unless((ctx) => {
         if (/^\/api/.test(ctx.path)) {
             return pathToRegexp([

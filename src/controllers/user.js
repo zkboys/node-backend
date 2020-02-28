@@ -57,7 +57,28 @@ module.exports = class UserController {
             },
         );
 
+        // 存储到redis，退出登录会用到
+        const redis = util.getRedis();
+        await redis.set(token, token);
+
         return ctx.success(_.pick(user, ft.user));
+    }
+
+    static async logout(ctx) {
+        const token = ctx.state.validateToken;
+        const redis = util.getRedis();
+
+        redis.set(token, null);
+
+        ctx.cookies.set(jwtCookieName, null,
+            {
+                maxAge: 0, // cookie有效时长 单位 毫秒s
+                httpOnly: true, // 是否只用于http请求中获取
+                overwrite: false, // 是否允许重写
+            },
+        );
+
+        ctx.success();
     }
 
     // 查询所有用户
