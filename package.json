@@ -4,7 +4,7 @@
     "description": "基于node koa 后端服务",
     "main": "app.js",
     "scripts": {
-        "start": "cross-env nodemon --ignore views/ --ignore public/ src/app",
+        "start": "cross-env nodemon --ignore views/ --ignore admin-front/ --ignore public/ src/app",
         "pro": "cross-env NODE_ENV=production node src/app",
         "test": "node src/test/gen && cross-env NODE_ENV=test jest --runInBand --forceExit",
         "test:watch": "yarn test -- --watch",

@@ -21,7 +21,8 @@ const routes = require('./routes');
 const {cron} = require('./cron');
 
 const port = config.get('port');
-const host = util.getIp();
+const host = config.get('host');
+const ip = util.getIp();
 const uploadConf = config.get('upload');
 const jwtSecret = config.get('jwt.secret');
 const jwtCookieName = config.get('jwt.cookieName');
@@ -79,8 +80,9 @@ app.proxy = config.get('proxy');
 /* istanbul ignore if */
 if (!module.parent) {
     cron.start();
-    app.listen(port, host);
-    console.log(`server started at http://${host}:${port}`);
+    // app.listen(port, host);
+    app.listen(port);
+    console.log(`server started at http://${host}:${port} http://${ip}:${port}`);
 }
 
 function serveStatic(prefix, filePath) {
