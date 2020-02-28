@@ -26,7 +26,6 @@ const ip = util.getIp();
 const uploadConf = config.get('upload');
 const jwtSecret = config.get('jwt.secret');
 const jwtCookieName = config.get('jwt.cookieName');
-const jwtTokenName = config.get('jwt.tokenName');
 
 const app = module.exports = new Koa();
 
@@ -46,7 +45,7 @@ app
     .use(middleware.util)
     .use(middleware.ipFilter)
     .use(favicon(path.join(__dirname, '/public/images/icon.png')))
-    .use(serveStatic('/dist', './dist'))
+    .use(serveStatic('/dist', '../dist'))
     .use(serveStatic('/public', './public'))
     .use(serveStatic('/upload', path.resolve(__dirname, 'config', uploadConf.dir)))
     .use(logger)

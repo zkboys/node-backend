@@ -6,6 +6,7 @@
     "scripts": {
         "start": "cross-env nodemon --ignore views/ --ignore admin-front/ --ignore public/ src/app",
         "pro": "cross-env NODE_ENV=production node src/app",
+        "build:front": "cd admin-front && yarn build",
         "test": "node src/test/gen && cross-env NODE_ENV=test jest --runInBand --forceExit",
         "test:watch": "yarn test -- --watch",
         "test:cover": "yarn test -- --coverage",
