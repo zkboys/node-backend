@@ -16,29 +16,29 @@ export function connect(url) {
 }
 
 export function Attributes(attributes) {
-    return (target, name, descriptor) => {
+    return (target) => {
         target.__attributes = attributes;
 
         const {__options} = target;
-        if (!__options) return descriptor;
+        if (!__options) return target;
 
         if (!sequelize) sequelize = connect(dbUrl);
 
         target.init(attributes, {sequelize, ...__options});
-        return descriptor;
+        return target;
     };
 }
 
 export function Options(options) {
-    return (target, name, descriptor) => {
+    return (target) => {
         target.__options = options;
 
         const {__attributes} = target;
-        if (!__attributes) return descriptor;
+        if (!__attributes) return target;
         if (!sequelize) sequelize = connect(config.get('db'));
 
         target.init(__attributes, {sequelize, ...options});
 
-        return descriptor;
+        return target;
     };
 }
