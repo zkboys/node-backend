@@ -34,4 +34,5 @@ JWT_SECRET
 - [ ] API文档
 - [x] jwt退出登录问题
 - [ ] 静态文件的缓存策略
+- [ ] 生产环境是否需要先通过 babel编译？还是直接使用babel-node即可？ babel-node 不能用于生产环境！因为 babel-node 会加载更多资源和模块，使得运行环境变「重」
 
