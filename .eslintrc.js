@@ -18,4 +18,9 @@ module.exports = {
         'indent': 0,
         'generator-star-spacing': 0,
     },
+    'parserOptions': {
+        'ecmaFeatures': {
+            'legacyDecorators': true,
+        },
+    },
 };

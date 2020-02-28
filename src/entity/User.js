@@ -1,16 +1,26 @@
-const Sequelize = require('sequelize');
+import {Model, INTEGER, STRING} from 'sequelize';
+import {Attributes, Options} from './util';
 
-module.exports = {
+@Attributes({
     id: {
-        type: Sequelize.INTEGER,
+        type: INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
     },
     name: {
-        type: Sequelize.STRING,
+        type: STRING,
     },
     password: {
-        type: Sequelize.STRING,
+        type: STRING,
     },
-};
+})
+@Options({
+    tableName: 'user',
+})
+export default class User extends Model {
+    // 这里可以封装方法
+    static findByName(name) {
+        return super.findOne({where: {name}});
+    }
+}

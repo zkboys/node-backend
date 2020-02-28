@@ -1,26 +1,28 @@
-'use strict';
+import _ from 'lodash';
+import config from 'config';
+import jwt from 'jsonwebtoken';
 
-const _ = require('lodash');
-const config = require('config');
-const jwt = require('jsonwebtoken');
-
-const util = require('../util');
-const ft = require('../entity/fields_table');
-const {User} = require('../entity');
+import {Get, Post} from '../routes';
+import util from '../util';
+import ft from '../entity/fields_table';
+import {User} from '../entity';
 
 const jwtSecret = config.get('jwt.secret');
 const jwtExpire = config.get('jwt.expire');
 const jwtCookieName = config.get('jwt.cookieName');
 
-module.exports = class UserController {
+export default class UserController {
+    // static routePrefix = 'user';
+
     // 新用户注册
+    @Post()
     static async register(ctx) {
         const name = ctx.checkBody('name').label('用户名').notEmpty().len(4, 20).value;
         const password = ctx.checkBody('password').label('密码').notEmpty().len(3, 20).value;
 
         if (ctx.errors) return ctx.fail(null, 10001, ctx.errors);
 
-        const user = await User.findOne({where: {name}});
+        const user = await User.findByName(name);
 
         if (user) return ctx.fail('用户名已被使用');
 
@@ -32,6 +34,7 @@ module.exports = class UserController {
     }
 
     // 用户登录
+    @Post()
     static async login(ctx) {
         const name = ctx.checkBody('name').notEmpty().value;
         const password = ctx.checkBody('password').notEmpty().value;
@@ -64,6 +67,7 @@ module.exports = class UserController {
         return ctx.success(_.pick(user, ft.user));
     }
 
+    @Post()
     static async logout(ctx) {
         const token = ctx.state.validateToken;
         const redis = util.getRedis();
@@ -82,6 +86,7 @@ module.exports = class UserController {
     }
 
     // 查询所有用户
+    @Get('/users')
     static async findAll(ctx) {
         const users = await User.findAll();
 

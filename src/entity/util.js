@@ -1,29 +1,44 @@
-const Sequelize = require('sequelize');
+import Sequelize from 'sequelize';
+import config from 'config';
 
+const dbUrl = config.get('db');
 let sequelize;
 
-module.exports = {
-    connect: url => {
-        sequelize = new Sequelize(url);
+export function connect(url) {
+    if (sequelize) return sequelize;
+    sequelize = new Sequelize(url);
 
-        sequelize
-            .authenticate()
-            .then(() => console.log('Connection has been established successfully.'))
-            .catch(err => console.error('Unable to connect to the database:', err));
-        return sequelize;
-    },
-    createModel: (attributes, options) => {
-        class Temp extends Sequelize.Model {
-        }
+    sequelize
+        .authenticate()
+        .then(() => console.log('Connection has been established successfully.'))
+        .catch(err => console.error('Unable to connect to the database:', err));
+    return sequelize;
+}
 
-        if (typeof options === 'string') options = {tableName: options};
+export function Attributes(attributes) {
+    return (target, name, descriptor) => {
+        target.__attributes = attributes;
 
-        let {modelName, tableName} = options;
+        const {__options} = target;
+        if (!__options) return descriptor;
 
-        if (!modelName) modelName = tableName;
+        if (!sequelize) sequelize = connect(dbUrl);
 
-        Temp.init(attributes, {sequelize, ...options, modelName});
+        target.init(attributes, {sequelize, ...__options});
+        return descriptor;
+    };
+}
 
-        return Temp;
-    },
-};
+export function Options(options) {
+    return (target, name, descriptor) => {
+        target.__options = options;
+
+        const {__attributes} = target;
+        if (!__attributes) return descriptor;
+        if (!sequelize) sequelize = connect(config.get('db'));
+
+        target.init(__attributes, {sequelize, ...options});
+
+        return descriptor;
+    };
+}

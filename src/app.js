@@ -1,6 +1,6 @@
 'use strict';
+import path from 'path';
 
-const path = require('path');
 const Koa = require('koa');
 const config = require('config');
 const koaJwt = require('koa-jwt');
