@@ -119,9 +119,9 @@
 
 
         $.ajax({
-            headers: {
-                Authorization: `Bearer ${token}`, // 授权 token使用方式
-            },
+            // headers: {
+            //     Authorization: `Bearer ${token}`, // 授权 token使用方式
+            // },
             type: 'GET',
             url: '/api/users',
             success: function (res) {

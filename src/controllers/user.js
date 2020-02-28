@@ -45,12 +45,13 @@ module.exports = class UserController {
         const verifyPassword = util.bcompare(password, user.password);
         if (!verifyPassword) return ctx.fail(errorMessage);
 
+        // expiresIn 单位 秒
         const token = jwt.sign({id: user.id}, jwtSecret, {expiresIn: jwtExpire});
         user.token = token;
 
         ctx.cookies.set(jwtCookieName, token,
             {
-                maxAge: jwtExpire, // cookie有效时长
+                maxAge: jwtExpire * 1000, // cookie有效时长 单位 毫秒s
                 httpOnly: true, // 是否只用于http请求中获取
                 overwrite: false, // 是否允许重写
             },
