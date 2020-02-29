@@ -10,14 +10,20 @@
 yarn
 ```
 
-## 启动
+## 开发启动
 ```
-# 开发
 yarn start
+```
 
-# 生产
+## 生产启动
+```
+# 先构建 如果需要前后端一起构建，使用 yarn build:all
+yarn build
+
+# 启动
 yarn pro
 ```
+
 
 ## 命令行变量
 NODE_ENV

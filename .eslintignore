@@ -28,5 +28,5 @@ dist
 config
 views/config.json
 public/upload
-admin-front/build
 build
+admin-front
