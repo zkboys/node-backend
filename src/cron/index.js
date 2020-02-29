@@ -1,7 +1,7 @@
-const {CronJob} = require('cron');
-const config = require('config');
+import {CronJob} from 'cron';
+import config from 'config';
 
 // 定时任务
-module.exports.cron = new CronJob(config.get('cronJobExpression'), () => {
+export const cron = new CronJob(config.get('cronJobExpression'), () => {
     console.log('Executing cron job once every hour');
 });

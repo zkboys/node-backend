@@ -1,6 +1,2 @@
-'use strict';
-
-module.exports = {
-    user: require('./user'),
-    util: require('./util'),
-};
+export user from './user';
+export util from './util';
