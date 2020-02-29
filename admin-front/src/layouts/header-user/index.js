@@ -20,7 +20,7 @@ export default class HeaderUser extends Component {
 
     handleMenuClick = ({key}) => {
         if (key === 'logout') {
-            this.props.ajax.post('/mock/logout').then(toLogin);
+            this.props.ajax.post('/logout').then(toLogin);
         }
 
         if (key === 'modifyPassword') {

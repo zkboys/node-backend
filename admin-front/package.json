@@ -4,8 +4,7 @@
     "license": "MIT",
     "scripts": {
         "start": "node scripts/start.js",
-        "build": "node scripts/build.js",
-        "build:pre": "BASE_NAME=/react-admin-live MOCK=true yarn build",
+        "build": "PUBLIC_URL=/dist node scripts/build.js",
         "test": "node scripts/test.js",
         "gen": "node scripts/gen/index.js"
     },

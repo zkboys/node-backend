@@ -59,7 +59,7 @@ export default class UserCenter extends Component {
                     },
                 ];
 
-                return <Operator items={items}/>
+                return <Operator items={items}/>;
             },
         },
     ];
@@ -83,9 +83,9 @@ export default class UserCenter extends Component {
             };
 
             this.setState({loading: true});
-            this.props.ajax.get('/mock/users', params)
+            this.props.ajax.get('/users', params)
                 .then(res => {
-                    const dataSource = res?.list || [];
+                    const dataSource = res || [];
                     const total = res?.total || 0;
 
                     this.setState({dataSource, total});
@@ -131,7 +131,7 @@ export default class UserCenter extends Component {
                     .then(() => this.handleSearch())
                     .finally(() => this.setState({deleting: false}));
             },
-        })
+        });
     };
 
     render() {

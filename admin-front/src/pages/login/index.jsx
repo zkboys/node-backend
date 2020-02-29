@@ -32,7 +32,7 @@ export default class extends Component {
         validateFields(() => void 0);
 
         // 开发时方便测试，填写表单
-        if (process.env.NODE_ENV === 'development' || process.env.BASE_NAME === '/react-admin-live') {
+        if (process.env.NODE_ENV === 'development') {
             setFieldsValue({userName: 'admin', password: '111'});
         }
 
@@ -134,10 +134,12 @@ export default class extends Component {
                             </div>
                         </Form>
                         <div styleName="error-tip">{message}</div>
-                        <div styleName="tip">
-                            <span>用户名：{userName} </span>
-                            <span>密码：{password}</span>
-                        </div>
+                        {process.env.NODE_ENV === 'development' ? (
+                            <div styleName="tip">
+                                <span>用户名：{userName} </span>
+                                <span>密码：{password}</span>
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             </div>
