@@ -13,18 +13,22 @@ class Support {
     //     });
     // }
 
-    static login(name, password) {
+    static async clean() {
+        // TODO 测试的一些清除工作
+    }
+
+    static async login(account, password) {
         return request(app.listen())
             .post('/api/login')
-            .send({name, password})
+            .send({account, password})
             .then(res => res.body);
     }
 
-    static createUser(name = 'admin6', password = '123') {
+    static createUser(account = 'admin6', password = '123') {
         return request(app.listen())
             .post('/api/register')
-            .send({name, password})
-            .then(() => this.login(name, password));
+            .send({account, password})
+            .then(() => this.login(account, password));
     }
 
     static createRequest(server, token) {
@@ -32,6 +36,11 @@ class Support {
             return request(server)[method](url)
                 .set('Authorization', 'Bearer ' + ctoken);
         };
+    }
+
+    static async createLoginRequest(account = 'admin', password = '111') {
+        const user = await this.login(account, password);
+        return this.createRequest(app.listen(), user.token);
     }
 }
 

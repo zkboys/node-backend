@@ -37,6 +37,6 @@ describe('test/util/index.test.js', () => {
     test('dropFileSchedule', () => {
         util.dropFileSchedule();
         jest.runOnlyPendingTimers();
-        expect(rimraf.mock.calls.length).toBe(2);
+        expect(rimraf.mock.calls.length).toBe(0);
     });
 });

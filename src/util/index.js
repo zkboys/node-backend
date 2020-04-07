@@ -4,24 +4,13 @@ const _ = require('lodash');
 const path = require('path');
 const config = require('config');
 const rimraf = require('rimraf');
-const Redis = require('ioredis');
+const Redis = require('./Redis');
 const moment = require('moment');
 const bcrypt = require('bcryptjs');
 const {pathToRegexp} = require('path-to-regexp');
 
-const redis = new Redis(config.get('redis'));
+const redis = new Redis();
 
-// 去掉redis，减少项目依赖
-// 但是开发时，服务反复重启，会导致token失效
-// const store = {};
-// const redis = {
-//     set(key, value) {
-//         store[key] = value;
-//     },
-//     get(key) {
-//         return Promise.resolve(store[key]);
-//     },
-// };
 
 module.exports = class BaseUtil {
     static getIp() {
@@ -55,7 +44,8 @@ module.exports = class BaseUtil {
 
     /**
      * 加密字符串
-     * @param String str
+     * @param str
+     * @returns {*}
      */
     static bhash(str) {
         return bcrypt.hashSync(str, 8);
@@ -63,8 +53,8 @@ module.exports = class BaseUtil {
 
     /**
      * 对比原字符串与经过加密的字符串是否相同
-     * @param String str
-     * @param String hash
+     * @param str
+     * @param hash
      */
     static bcompare(str, hash) {
         return bcrypt.compareSync(str, hash);
@@ -72,7 +62,7 @@ module.exports = class BaseUtil {
 
     /**
      * 安全的 decodeURIComponent
-     * @param String str
+     * @param str
      */
     static safeDecodeURIComponent(str) {
         try {
@@ -87,8 +77,8 @@ module.exports = class BaseUtil {
      *
      * /user/nick (/user/:name) => { name: 'nick' }
      *
-     * @param String restURL /user/:name
-     * @param String fullURL /user/nick
+     * @param restURL /user/:name
+     * @param fullURL /user/nick
      */
     static params(restURL, fullURL) {
         const params = {};
@@ -130,7 +120,7 @@ module.exports = class BaseUtil {
     /**
      * Flatten/Nest Javascript objects
      * https://github.com/brycebaril/node-flatnest/blob/master/flatten.js
-     * @param Object obj
+     * @param obj
      */
     static flatten(obj) {
         const flattened = {};

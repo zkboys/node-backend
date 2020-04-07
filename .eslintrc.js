@@ -17,6 +17,7 @@ module.exports = {
         'space-before-function-paren': 0,
         'indent': 0,
         'generator-star-spacing': 0,
+        'no-return-await': 0,
     },
     'parserOptions': {
         'ecmaFeatures': {

@@ -1,153 +1,101 @@
-import React, {Component} from "react";
-import PropTypes from "prop-types";
+import React, {useContext, Component} from 'react';
 import {Form} from 'antd';
-import {FormElement} from '@/library/components';
+import {FormElement} from 'src/library/components';
+import uuid from 'uuid/v4';
 import './style.less';
-import _ from 'lodash';
 
-/**
- * 可标记表格高阶组件，dataSource中每条数据，必须含有id作为唯一标识
- * columns 添加 formProps
- * */
-export default function Editable(OriTable) {
-    @Form.create()
-    class EditableCell extends React.Component {
+const EditableContext = React.createContext();
 
-        // 使重置起作用
-        componentDidUpdate(prevProps, prevState, snapshot) {
-            const {form, record, dataIndex} = this.props;
-            const prevRecord = prevProps.record;
-            const prevValue = prevRecord[dataIndex];
-            const value = record[dataIndex];
+const EditableRow = ({initialValues, ...props}) => {
+    const [form] = Form.useForm();
+    return (
+        <Form name={uuid()} form={form} component={false} initialValues={initialValues}>
+            <EditableContext.Provider value={form}>
+                <tr {...props} />
+            </EditableContext.Provider>
+        </Form>
+    );
+};
 
-            if (value !== prevValue) form.resetFields();
-        }
+const EditableCell = (options) => {
+    const {
+        children,
+        record = {},
+        col = {},
+        ...restProps
+    } = options;
 
-        // 截流触发，提高性能
-        handleChange = _.debounce(() => {
-            this.props.form.validateFieldsAndScroll((err, values) => {
-                if (err) return;
+    record._form = useContext(EditableContext);
+    const {title, dataIndex, elementProps} = col;
 
-                const {value, dataSource, onChange} = this.props;
-                if (onChange) {
-                    const source = value || dataSource;
+    let childNode = children;
+    let eleProps = elementProps;
 
-                    const ds = source.map(item => {
-                        const {id} = item;
-                        return {...item, ...values[id]};
-                    });
-                    onChange(ds);
-                }
-            });
-        }, 500);
-
-        renderCell = () => {
-            const {form, record, title, dataIndex, formProps, size} = this.props;
-            const {id} = record;
-            const field = `${id}[${dataIndex}]`;
-            const value = record[dataIndex];
-
-            return (
-                <FormElement
-                    {...formProps}
-                    form={form}
-                    label={title}
-                    labelWidth={formProps.required ? 10 : 0}
-                    colon={false}
-                    field={field}
-                    initialValue={value}
-                    onChange={this.handleChange}
-                    size={size}
-                />
-            );
-        };
-
-        render() {
-            const {
-                editable,
-                title,
-                dataIndex,
-                record,
-                value,
-                onChange,
-                formProps,
-                form,
-                children,
-                ...restProps
-            } = this.props;
-            return (
-                <td {...restProps}>
-                    {editable ? (
-                        this.renderCell()
-                    ) : (
-                        children
-                    )}
-                </td>
-            );
-        }
+    if (typeof elementProps === 'function') {
+        eleProps = elementProps(record);
     }
 
-    class EditableTable extends Component {
-        static propTypes = {
-            dataSource: PropTypes.array,
-            columns: PropTypes.array,
-            value: PropTypes.array,
-            onChange: PropTypes.func,
-        };
+    // eleProps 存在，即表示可编辑
+    if (eleProps) {
+        childNode = (
+            <FormElement
+                label={title}
+                showLabel={false}
+                colon={false}
+                name={dataIndex}
+                {...eleProps}
+            />
+        );
+    }
+
+    return <td {...restProps}>{childNode}</td>;
+};
+
+
+export default function editTable(OriTable) {
+    return class EditTable extends Component {
 
         render() {
-            const {
-                value,
-                dataSource,
-                onChange,
-                columns,
-                rowKey,
-                size,
-                ...others
-            } = this.props;
-
-            const ds = value || dataSource;
-
-            if (!this.initDataSource && ds?.length) this.initDataSource = ds;
-
+            const {columns, className = '', onRow, ...others} = this.props;
             const components = {
                 body: {
+                    row: EditableRow,
                     cell: EditableCell,
                 },
             };
 
-            const nextColumns = columns.map(col => {
-                const editable = !!col.formProps;
-                if (!editable) return col;
+            const newColumns = columns.map(col => {
+                if (!col.elementProps) {
+                    return col;
+                }
 
                 return {
                     ...col,
                     onCell: record => ({
                         record,
-                        value: value || dataSource,
-                        formProps: col.formProps,
-                        editable,
-                        title: col.title,
-                        dataIndex: col.dataIndex,
-                        onChange,
-                        size,
+                        col,
                     }),
                 };
             });
 
             return (
                 <OriTable
-                    className="table-editable-root"
-                    {...others}
-                    size={size}
-                    rowKey={rowKey}
+                    onRow={(record, index) => {
+                        let result = {};
+                        if (onRow) result = onRow(record, index);
+
+                        const initialValues = {...record};
+                        return {
+                            ...result,
+                            initialValues,
+                        };
+                    }}
+                    className={`table-editable-root ${className}`}
                     components={components}
-                    columns={nextColumns}
-                    dataSource={ds}
+                    columns={newColumns}
+                    {...others}
                 />
             );
         }
-    }
-
-    return EditableTable;
+    };
 }

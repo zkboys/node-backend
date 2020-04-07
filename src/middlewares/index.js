@@ -17,16 +17,39 @@ const codeMap = {
 
 function success(data) {
     this.response.status = 200;
-    if (data) this.body = data;
+    if (data !== undefined) this.body = data;
 }
 
 function fail(message, code = -1, data = null) {
+    const messages = getMessages(message, code);
+
     this.response.status = 400;
     this.body = {
         code,
-        message: message || codeMap[code],
+        message: messages[0],
+        messages,
         data,
     };
+}
+
+function getMessages(msg, code) {
+    if (!msg) return [codeMap[code]];
+
+    if (Array.isArray(msg)) {
+        let messages = [];
+
+        msg.forEach(item => {
+            if (typeof item === 'object') {
+                messages = messages.concat(Object.values(item));
+            } else if (typeof item === 'string') {
+                messages.push(item);
+            }
+        });
+
+        return messages;
+    }
+
+    if (typeof msg === 'string') return [msg];
 }
 
 module.exports = class Middleware {

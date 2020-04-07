@@ -6,31 +6,23 @@ const apiRouter = new Router({prefix: '/api'});
 const pageRouter = new Router({prefix: ''});
 
 const {
-    util,
+    Util,
 } = require('../controllers');
 
 function method(methodName = 'get') {
-    return path => (target, name, descriptor) => {
-        const prefix = target.routePrefix ? `/${target.routePrefix}` : '';
+    return function (path) {
+        return function (target, name, descriptor) {
+            const prefixPath = target.routePrefix ? `/${target.routePrefix}${path}` : `${path}`;
 
-        if (!path) {
-            path = `${prefix}/${name}`;
-        } else {
-            path = `${prefix}${path}`;
-        }
-        const {value} = descriptor;
-        apiRouter[methodName](path, value);
-        return descriptor;
+            // 需要进行bind ，否则会导致方法内部的this丢失
+            descriptor.value = descriptor.value.bind(target);
+
+            apiRouter[methodName](prefixPath, descriptor.value);
+
+            return descriptor;
+        };
     };
 }
-
-// export function get(path) {
-//     return (target, name, descriptor) => {
-//         const {value} = descriptor;
-//         apiRouter['get'](path, value);
-//         return descriptor;
-//     };
-// }
 
 export function Get(path) {
     return method('get')(path);
@@ -49,21 +41,16 @@ export function Del(path) {
 }
 
 export const api = apiRouter
-        .get('/wallpaper', util.wallpaper)
-        .post('/upload', util.upload)
-        .post('*', ctx => (ctx.status = 404))
-        .put('*', ctx => (ctx.status = 404))
-        .del('*', ctx => (ctx.status = 404))
-
-    // .post('/login', user.login)
-    // .post('/logout', user.logout)
-    // .post('/register', user.register)
-    // .get('/users', user.findAll)
+    .post('/upload', Util.upload)
+    .post('*', ctx => (ctx.status = 404))
+    .put('*', ctx => (ctx.status = 404))
+    .del('*', ctx => (ctx.status = 404))
 ;
 
+const renderPage = (page) => async ctx => await ctx.render(page);
 // ctx.state 可以给模版传递数据
 export const page = pageRouter
-    .get('/register', renderPage('register'))
+    .get('/index', renderPage('index'))
     .get('*', ctx => { // 单页面应用，所有未捕获请求，返回index.html
         // 区分ajax请求、静态文件请求，否者都会返回index.html
         if (ctx.headers['x-requested-with'] === 'XMLHttpRequest' && ctx.path.startsWith('/api/')) {
@@ -80,9 +67,3 @@ export const page = pageRouter
         ctx.type = 'html';
         ctx.body = fs.createReadStream(path.resolve(__dirname, '../../dist/index.html'));
     });
-
-function renderPage(page) {
-    return async function (ctx) {
-        await ctx.render(page);
-    };
-}

@@ -8,12 +8,8 @@ import {Attributes, Options} from './util';
         autoIncrement: true,
         primaryKey: true,
     },
-    name: {
-        type: STRING,
-    },
-    password: {
-        type: STRING,
-    },
+    account: STRING,
+    password: STRING,
 })
 @Options({
     tableName: 'user',
@@ -21,6 +17,6 @@ import {Attributes, Options} from './util';
 export default class User extends Model {
     // 这里可以封装方法
     static findByName(name) {
-        return super.findOne({where: {name}});
+        return this.findOne({where: {name}});
     }
 }

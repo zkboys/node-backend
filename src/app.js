@@ -6,7 +6,6 @@ const config = require('config');
 const koaJwt = require('koa-jwt');
 const cors = require('@koa/cors');
 const koaBody = require('koa-body');
-// const onerror = require('koa-onerror');
 const favicon = require('koa-favicon');
 const staticCache = require('koa-static-cache');
 const {pathToRegexp} = require('path-to-regexp');
@@ -30,7 +29,6 @@ const jwtCookieName = config.get('jwt.cookieName');
 const app = module.exports = new Koa();
 
 util.init();
-// onerror(app);
 validate(app, zhCn);
 
 render(app, {
@@ -44,7 +42,7 @@ render(app, {
 app
     .use(middleware.util)
     .use(middleware.ipFilter)
-    .use(favicon(path.join(__dirname, '/public/images/icon.png')))
+    .use(favicon(path.join(__dirname, '/public/images/favicon.ico')))
     .use(serveStatic('/dist', '../dist'))
     .use(serveStatic('/public', './public'))
     .use(serveStatic('/upload', path.resolve(__dirname, 'config', uploadConf.dir)))
@@ -65,11 +63,17 @@ app
                 '/api/login',
                 '/api/register',
                 '/api/wallpaper',
+                '/api/getCaptcha',
             ]).test(ctx.path);
         }
         return true;
     }))
-    .use(koaBody({multipart: true}))
+    .use(koaBody({
+        multipart: true,
+        formidable: {
+            maxFileSize: 200 * 1024 * 1024,
+        },
+    }))
     .use(routes.api.routes())
     .use(routes.api.allowedMethods())
     .use(routes.page.routes())
