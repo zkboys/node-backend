@@ -11,7 +11,6 @@ const {pathToRegexp} = require('path-to-regexp');
 
 const redis = new Redis();
 
-
 module.exports = class BaseUtil {
     static getIp() {
         const interfaces = require('os').networkInterfaces();
@@ -36,11 +35,10 @@ module.exports = class BaseUtil {
     }
 
     /**
-     * 获取 redis 实例
+     * redis实例
+     * @type {Redis}
      */
-    static getRedis() {
-        return redis;
-    }
+    static redis = redis;
 
     /**
      * 加密字符串

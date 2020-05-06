@@ -8,7 +8,7 @@ jest.mock('rimraf', () => jest.fn());
 
 describe('test/util/index.test.js', () => {
     test('redis', async () => {
-        const redis = util.getRedis();
+        const redis = util.redis;
         redis.set('test', '123');
 
         const test = await redis.get('test');

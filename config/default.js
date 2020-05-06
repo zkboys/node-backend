@@ -10,7 +10,7 @@ module.exports = {
     host: 'localhost',
     pageSize: 30,
     proxy: false,
-    logSql: false,
+    logSql: true,
     unsplashClientId: '',
     cronJobExpression: '0 * * * *',
     blackList: {
@@ -49,20 +49,5 @@ module.exports = {
             ],
             day: -1,
         },
-    },
-    ldap: {
-        server: '',
-        bindDN: '',
-        password: '',
-        filter: {
-            base: '',
-            attributeName: '',
-        },
-    },
-    fe: {
-        copyright: '',
-        storageNamespace: 'easy-mock_',
-        timeout: 25000,
-        publicPath: '/dist/',
     },
 };

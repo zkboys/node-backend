@@ -1,53 +1,35 @@
-import Sequelize from 'sequelize';
+import Sequelize, {Model} from 'sequelize';
 import config from 'config';
 
 const dbUrl = config.get('db');
 const logSql = config.get('logSql');
-let _sequelize;
 
 export function connect(url) {
-    // 如果实例存在，直接返回
-    if (_sequelize) return _sequelize;
-
     // 创建实例，进行数据库连接
-    _sequelize = new Sequelize(url, {logging: logSql});
+    const sequelize = new Sequelize(url, {logging: logSql});
 
     // 测试连接是否成功
-    _sequelize
+    sequelize
         .authenticate()
         .then(() => console.log('Database Connection has been established successfully.'))
         .catch(err => console.error('Unable to connect to the database:', err));
-    return _sequelize;
+    return sequelize;
 }
 
-// 属性配置装饰器
-export function Attributes(attributes) {
-    return (target) => {
-        target.__attributes = attributes;
+const sequelize = connect(dbUrl);
 
-        const {__options} = target;
-        if (!__options) return target;
+export function createModel(fileName, opt) {
+    let {attributes, options} = opt;
+    if (!options) options = {};
 
-        if (!_sequelize) _sequelize = connect(dbUrl);
+    if (!options.modelName) options.modelName = fileName;
 
-        target.init(attributes, {sequelize: _sequelize, ...__options});
-        return target;
-    };
+    if (!options.underscored) options.underscored = true;
+
+    class TemplateModel extends Model {
+    }
+
+    TemplateModel.init(attributes, {sequelize, ...options});
+
+    return TemplateModel;
 }
-
-// 参数配置装饰器
-export function Options(options) {
-    return (target) => {
-        target.__options = options;
-
-        const {__attributes} = target;
-        if (!__attributes) return target;
-        if (!_sequelize) _sequelize = connect(dbUrl);
-
-        target.init(__attributes, {sequelize: _sequelize, ...options});
-
-        return target;
-    };
-}
-
-export const sequelize = connect(dbUrl);

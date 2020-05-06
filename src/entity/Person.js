@@ -6,14 +6,12 @@ export default {
             type: UUID,
             allowNull: false,
             primaryKey: true,
+            unique: 'compositeIndex',
         },
-        key: {
+        name: {
             type: STRING,
-            field: 'r_key',
-        },
-        value: {
-            type: STRING,
-            field: 'r_value',
+            allowNull: false,
+            length: 50,
         },
     },
 };

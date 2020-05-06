@@ -6,6 +6,7 @@ const {pathToRegexp} = require('path-to-regexp');
 const util = require('../util');
 const blackProjects = config.get('blackList.projects');
 const blackIPs = config.get('blackList.ips');
+const entities = require('../entity');
 
 const codeMap = {
     '-1': 'fail',
@@ -53,6 +54,17 @@ function getMessages(msg, code) {
 }
 
 module.exports = class Middleware {
+    /**
+     * 加载 entity到 ctx.$entity中，可以通过 ctx.$entity.User.findAll() 方式使用
+     * @param ctx
+     * @param next
+     * @returns {*}
+     */
+    static loadEntity(ctx, next) {
+        ctx.$entity = entities;
+        return next();
+    }
+
     static util(ctx, next) {
         ctx.set('X-Request-Id', ctx.req.id);
         ctx.success = success;
@@ -70,8 +82,8 @@ module.exports = class Middleware {
     static async getToken(ctx, next) {
         const jwtTokenName = config.get('jwt.tokenName');
         const jwtCookieName = config.get('jwt.cookieName');
-        // 三种方式获取token
 
+        // 三种方式获取token
         let token;
         const headerToken = ctx.request.header[String(jwtTokenName).toLowerCase()];
         const authorizationToken = (ctx.request.header.authorization || '').replace('Bearer', '').trim();
@@ -81,7 +93,7 @@ module.exports = class Middleware {
         if (authorizationToken) token = authorizationToken;
         if (headerToken) token = headerToken;
 
-        const redis = util.getRedis();
+        const redis = util.redis;
         const existToken = await redis.get(token);
         ctx.state.validateToken = existToken || 'no token';
         return next();

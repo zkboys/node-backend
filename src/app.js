@@ -40,6 +40,7 @@ render(app, {
 });
 
 app
+    .use(middleware.loadEntity) // 加载 entity到 ctx.$entity
     .use(middleware.util)
     .use(middleware.ipFilter)
     .use(favicon(path.join(__dirname, '/public/images/favicon.ico')))
@@ -58,6 +59,8 @@ app
         cookie: jwtCookieName,
         getToken: (ctx) => ctx.state.validateToken,
     }).unless((ctx) => {
+        return true; // TODO
+
         if (/^\/api/.test(ctx.path)) {
             return pathToRegexp([
                 '/api/login',

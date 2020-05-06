@@ -1,12 +1,14 @@
 const Router = require('koa-router');
 const fs = require('fs');
 const path = require('path');
+const inflect = require('i')();
 
 const apiRouter = new Router({prefix: '/api'});
 const pageRouter = new Router({prefix: ''});
 
 const {
     Util,
+    RestFull,
 } = require('../controllers');
 
 function method(methodName = 'get') {
@@ -40,7 +42,23 @@ export function Del(path) {
     return method('del')(path);
 }
 
+function getEntityModel(ctx, next) {
+    const {model} = ctx.params;
+    const entityName = inflect.camelize(inflect.singularize(model));
+
+    const entity = ctx.$entity[entityName];
+    if (!entity) return ctx.fail(`没有${model}对应的entity${entityName}!`);
+
+    ctx.$entityModel = entity;
+    console.log(entity);
+    return next();
+}
+
 export const api = apiRouter
+    // 通用 restful api
+    .get('/:model', getEntityModel, RestFull.get)
+    .get('/:model/:id', getEntityModel, RestFull.getById)
+    .post('/:model', getEntityModel, RestFull.post)
     .post('/upload', Util.upload)
     .post('*', ctx => (ctx.status = 404))
     .put('*', ctx => (ctx.status = 404))
@@ -48,6 +66,7 @@ export const api = apiRouter
 ;
 
 const renderPage = (page) => async ctx => await ctx.render(page);
+
 // ctx.state 可以给模版传递数据
 export const page = pageRouter
     .get('/index', renderPage('index'))

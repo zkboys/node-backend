@@ -7,13 +7,12 @@ import uuid from 'uuid';
 import {Get, Post} from '../routes';
 import util from '../util';
 import ft from '../entity/fields_table';
-import {User} from '../entity';
 
 const jwtSecret = config.get('jwt.secret');
 const jwtExpire = config.get('jwt.expire');
 const jwtCookieName = config.get('jwt.cookieName');
 
-const redis = util.getRedis();
+const redis = util.redis;
 
 export default class UserController {
     // static routePrefix = 'user';
@@ -26,13 +25,13 @@ export default class UserController {
 
         if (ctx.errors) return ctx.fail(ctx.errors);
 
-        const user = await User.findOne({where: {account}});
+        const user = await ctx.$entity.User.findOne({where: {account}});
 
         if (user) return ctx.fail('账号已被使用');
 
         const newPassword = util.bhash(password);
 
-        const createdUser = await User.create({account, password: newPassword});
+        const createdUser = await ctx.$entity.User.create({account, password: newPassword});
 
         ctx.success(createdUser);
     }
@@ -63,7 +62,9 @@ export default class UserController {
 
         const errorMessage = '用户名或密码错误';
 
-        const user = await User.findOne({where: {account}});
+        console.log(account);
+
+        const user = await ctx.$entity.User.findOne({where: {account}});
         const verifyPassword = user && util.bcompare(password, user.password);
 
         if (!verifyPassword || !user) {
@@ -110,7 +111,7 @@ export default class UserController {
         const newPassword = ctx.checkBody('newPassword').label('新密码').notEmpty().value;
         if (ctx.errors) return ctx.fail(ctx.errors);
 
-        const user = await User.findOne({where: {id}});
+        const user = await ctx.$entity.User.findOne({where: {id}});
         if (!user) return ctx.fail('用户不存在');
 
         //  验证旧密码
@@ -123,7 +124,7 @@ export default class UserController {
 
         const password = util.bhash(newPassword);
 
-        await User.update({password}, {where: {id}});
+        await ctx.$entity.User.update({password}, {where: {id}});
 
         this.logout(ctx);
     }
@@ -131,7 +132,7 @@ export default class UserController {
     // 查询所有用户
     @Get('/users')
     static async findAll(ctx) {
-        const users = await User.findAll();
+        const users = await ctx.$entity.User.findAll();
 
         ctx.success(users.map(user => _.pick(user, ft.user)));
     }
@@ -151,7 +152,7 @@ export default class UserController {
 
         const {data, text} = captcha;
 
-        const redis = util.getRedis();
+        const redis = util.redis;
         redis.set(`captchaId${captchaId}`, text);
 
         ctx.success({captcha: data, captchaId});
