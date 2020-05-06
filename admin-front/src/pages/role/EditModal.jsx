@@ -12,8 +12,8 @@ import {ModalContent} from 'src/library/components';
 })
 export default class EditModal extends Component {
     state = {
-        loading: false, // 页面加载loading
-        data: {},       // 表单回显数据
+        loading: false,     // 页面加载loading
+        data: {},           // 回显的角色数据
     };
 
     componentDidMount() {
@@ -30,9 +30,10 @@ export default class EditModal extends Component {
         const {id} = this.props;
 
         this.setState({loading: true});
-        this.props.ajax.get(`/role/${id}`)
+        this.props.ajax.get(`/mock/roles/${id}`)
             .then(res => {
                 this.setState({data: res || {}});
+                this.form.setFieldsValue(res);
             })
             .finally(() => this.setState({loading: false}));
     };

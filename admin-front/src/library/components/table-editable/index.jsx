@@ -1,7 +1,7 @@
 import React, {useContext, Component} from 'react';
 import {Form} from 'antd';
 import {FormElement} from 'src/library/components';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import './style.less';
 
 const EditableContext = React.createContext();
@@ -21,18 +21,19 @@ const EditableCell = (options) => {
     const {
         children,
         record = {},
+        rowIndex,
         col = {},
         ...restProps
     } = options;
 
     record._form = useContext(EditableContext);
-    const {title, dataIndex, elementProps} = col;
+    const {title, dataIndex, formProps} = col;
 
     let childNode = children;
-    let eleProps = elementProps;
+    let eleProps = formProps;
 
-    if (typeof elementProps === 'function') {
-        eleProps = elementProps(record);
+    if (typeof formProps === 'function') {
+        eleProps = formProps(record, rowIndex);
     }
 
     // eleProps 存在，即表示可编辑
@@ -56,23 +57,27 @@ export default function editTable(OriTable) {
     return class EditTable extends Component {
 
         render() {
-            const {columns, className = '', onRow, ...others} = this.props;
-            const components = {
+            const {columns, className = '', onRow, components, ...others} = this.props;
+            const body = components?.body || {};
+
+            const nextComponents = {
                 body: {
+                    ...body,
                     row: EditableRow,
                     cell: EditableCell,
                 },
             };
 
             const newColumns = columns.map(col => {
-                if (!col.elementProps) {
+                if (!col.formProps) {
                     return col;
                 }
 
                 return {
                     ...col,
-                    onCell: record => ({
+                    onCell: (record, rowIndex) => ({
                         record,
+                        rowIndex,
                         col,
                     }),
                 };
@@ -91,7 +96,7 @@ export default function editTable(OriTable) {
                         };
                     }}
                     className={`table-editable-root ${className}`}
-                    components={components}
+                    components={nextComponents}
                     columns={newColumns}
                     {...others}
                 />

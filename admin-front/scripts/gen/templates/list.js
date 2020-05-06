@@ -1,6 +1,19 @@
 const DELETE_THIS_LINE = 'DELETE_THIS_LINE';
 const WITH_OPTIONS_TYPE = ['select', 'radio-group', 'checkbox-group'];
 
+function renderTime(item) {
+    const {title, dataIndex} = item;
+    const timeStr = `, render: value => value ? moment(value).format('YYYY-MM-DD HH:mm') : null`;
+    const dateStr = `, render: value => value ? moment(value).format('YYYY-MM-DD') : null`;
+
+    if (title && title.includes('日期')) return dateStr;
+    if (title && title.includes('时间')) return timeStr;
+    if (dataIndex && dataIndex.toLowerCase().endsWith('time')) return timeStr;
+    if (dataIndex && dataIndex.toLowerCase().endsWith('date')) return dateStr;
+
+    return '';
+}
+
 /**
  * 获取列表页字符串
  */
@@ -14,6 +27,8 @@ module.exports = function (config) {
         table,
         columns,
     } = config;
+
+    if (queries && !queries.length) queries = null;
 
     if (!table) table = {};
 
@@ -35,11 +50,13 @@ module.exports = function (config) {
     const operatorDelete = operators && operators.find(item => item.text === '删除');
 
     return `import React, {Component} from 'react';
-${tools || queries || hasBatchDelete ? `import {${queries ? 'Button, Form, ' : ''}${hasBatchDelete ? 'Modal' : ''}} from 'antd';` : DELETE_THIS_LINE}
+${tools || queries || hasBatchDelete ? `import {${(queries || tools) ? 'Button, ' : ''}${queries ? 'Form, ' : ''}${hasBatchDelete ? 'Modal' : ''}} from 'antd';` : DELETE_THIS_LINE}
+${columns.find(renderTime) ? `import moment from 'moment';` : DELETE_THIS_LINE}
 import PageContent from 'src/layouts/page-content';
 import config from 'src/commons/config-hoc';
 import {
     ${queries ? 'QueryBar,' : DELETE_THIS_LINE}
+    ${(!queries && tools) ? 'ToolBar,' : DELETE_THIS_LINE}
     ${queries ? 'FormRow,' : DELETE_THIS_LINE}
     ${queries ? 'FormElement,' : DELETE_THIS_LINE}
     Table,
@@ -67,7 +84,7 @@ export default class UserCenter extends Component {
     };
 
     columns = [
-        ${columns.map(item => `{title: '${item.title}', dataIndex: '${item.dataIndex}', width: 200},`).join('\n        ')}
+        ${columns.map(item => `{title: '${item.title}', dataIndex: '${item.dataIndex}', width: 200${renderTime(item)}},`).join('\n        ')}
         ${operators ? `{
             title: '操作', dataIndex: 'operator', width: 100,
             render: (value, record) => {
@@ -166,7 +183,7 @@ export default class UserCenter extends Component {
     render() {
         const {
             loading,
-            ${hasBatchDelete ? 'deleting,' : DELETE_THIS_LINE}
+            ${hasBatchDelete || hasDelete ? 'deleting,' : DELETE_THIS_LINE}
             dataSource,
             ${table.selectable ? 'selectedRowKeys,' : DELETE_THIS_LINE}
             ${table.pagination ? 'total,' : DELETE_THIS_LINE}
@@ -183,15 +200,19 @@ export default class UserCenter extends Component {
         ${hasBatchDelete && table.selectable ? 'const disabledDelete = !selectedRowKeys?.length;' : DELETE_THIS_LINE}
 
         return (
-            <PageContent>
+            <PageContent loading={loading${hasBatchDelete || hasDelete ? ' || deleting' : ''}}>
                 ${queries ? `<QueryBar>
-                    <Form onFinish={this.handleSubmit} ref={form => this.form = form}>
+                    <Form
+                        name="${base.moduleName}-query"
+                        ref={form => this.form = form}
+                        onFinish={this.handleSubmit}
+                    >
                         <FormRow>
                             ${queries.map(item => `<FormElement
                                 {...formProps}
                                 ${item.type !== 'input' ? `type="${item.type}"` : DELETE_THIS_LINE}
                                 label="${item.label}"
-                                field="${item.field}"
+                                name="${item.field}"
                                 ${WITH_OPTIONS_TYPE.includes(item.type) ? `options={[
                                     {value: '1', label: '选项1'},
                                     {value: '2', label: '选项2'},
@@ -200,20 +221,24 @@ export default class UserCenter extends Component {
                             <FormElement layout>
                                 <Button type="primary" htmlType="submit">提交</Button>
                                 <Button onClick={() => this.form.resetFields()}>重置</Button>
+                                ${tools ? `${tools.find(item => item.text === '添加') ? `<Button type="primary" onClick={() => ${isModalEdit ? `this.setState({visible: true, id: null})` : `this.props.history.push('${base.path}/_/edit/:id')`}}>添加</Button>` : DELETE_THIS_LINE}
+                                ${tools.find(item => item.text === '删除') ? `<Button danger ${table.selectable ? 'disabled={disabledDelete} ' : ''}onClick={this.handleBatchDelete}>删除</Button>` : DELETE_THIS_LINE}
+                                ${tools.filter(item => !['添加', '删除'].includes(item.text)).length ? tools.filter(item => !['添加', '删除'].includes(item.text)).map(item => `<Button type="primary" onClick={this.${item.handle}}>${item.text}</Button>`).join('\n                             ') : DELETE_THIS_LINE}` : DELETE_THIS_LINE}
                             </FormElement>
-                            ${tools ? `${tools.find(item => item.text === '添加') ? `<Button type="primary" onClick={() => ${isModalEdit ? `this.setState({visible: true, id: null})` : `this.props.history.push('${base.path}/_/edit/:id')`}}>添加</Button>` : DELETE_THIS_LINE}
-                            ${tools.find(item => item.text === '删除') ? `<Button danger loading={deleting} ${table.selectable ? 'disabled={disabledDelete} ' : ''}onClick={this.handleBatchDelete}>删除</Button>` : DELETE_THIS_LINE}
-                            ${tools.filter(item => !['添加', '删除'].includes(item.text)).length ? tools.filter(item => !['添加', '删除'].includes(item.text)).map(item => `<Button type="primary" onClick={this.${item.handle}}>${item.text}</Button>`).join('\n                             ') : DELETE_THIS_LINE}` : DELETE_THIS_LINE}
                         </FormRow>
                     </Form>
                 </QueryBar>` : DELETE_THIS_LINE}
+                ${(!queries && tools) ? `<ToolBar>
+                    ${tools ? `${tools.find(item => item.text === '添加') ? `<Button type="primary" onClick={() => ${isModalEdit ? `this.setState({visible: true, id: null})` : `this.props.history.push('${base.path}/_/edit/:id')`}}>添加</Button>` : DELETE_THIS_LINE}
+                    ${tools.find(item => item.text === '删除') ? `<Button danger ${table.selectable ? 'disabled={disabledDelete} ' : ''}onClick={this.handleBatchDelete}>删除</Button>` : DELETE_THIS_LINE}
+                    ${tools.filter(item => !['添加', '删除'].includes(item.text)).length ? tools.filter(item => !['添加', '删除'].includes(item.text)).map(item => `<Button type="primary" onClick={this.${item.handle}}>${item.text}</Button>`).join('\n                     ') : DELETE_THIS_LINE}` : DELETE_THIS_LINE}
+                </ToolBar>` : DELETE_THIS_LINE}
                 <Table
                     ${table.serialNumber ? 'serialNumber' : DELETE_THIS_LINE}
                     ${table.selectable ? `rowSelection={{
                         selectedRowKeys,
                         onChange: selectedRowKeys => this.setState({selectedRowKeys}),
                     }}` : DELETE_THIS_LINE}
-                    loading={loading}
                     columns={this.columns}
                     dataSource={dataSource}
                     rowKey="id"

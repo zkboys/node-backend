@@ -22,7 +22,7 @@ import './index.less';
 const {TextArea, Password} = Input;
 const FormItem = Form.Item;
 
-// input hidden number textarea password mobile email select select-tree checkbox checkbox-group radio radio-group switch date time date-time date-range cascader
+// input hidden number textarea password mobile email select select-tree checkbox checkbox-group radio radio-button radio-group switch date time date-time date-range cascader
 
 /**
  * 类似 input 元素
@@ -38,7 +38,6 @@ export function isInputLikeElement(type) {
         'password',
         'mobile',
         'email',
-        'json',
     ].includes(type);
 }
 
@@ -185,7 +184,7 @@ class FormElement extends Component {
     };
 
     // 获取校验信息
-    getRules = (rules = [], placeholder) => {
+    getRules = (rules = [], requireMessage) => {
         const {
             required,
             maxLength,
@@ -194,7 +193,7 @@ class FormElement extends Component {
 
         // 如果存在required属性，自动添加必填校验
         if (required && !rules.find(item => 'required' in item)) {
-            rules.push({required: true, message: `${placeholder}!`});
+            rules.push({required: true, message: `${requireMessage}!`});
         }
 
         if (maxLength !== void 0 && !rules.find(item => 'max' in item)) {
@@ -259,7 +258,7 @@ class FormElement extends Component {
         } = this.props;
 
 
-        if (type === 'switch') {
+        if (type === 'switch' || type === 'checkbox') {
             valuePropName = 'checked';
         }
 
@@ -269,6 +268,10 @@ class FormElement extends Component {
 
         if (!labelCol && labelWidth !== undefined) {
             labelCol = {flex: `0 0 ${labelWidth}px`};
+        }
+
+        if (type === 'select' && ('showSearch' in others) && !('optionFilterProp' in others)) {
+            others.optionFilterProp = 'children';
         }
 
         // 处理整体样式
@@ -301,7 +304,11 @@ class FormElement extends Component {
             others.allowClear = true;
         }
 
-        rules = this.getRules(rules, others.placeholder);
+        rules = this.getRules(rules, isInputLikeElement(type) ? `请输入${label}` : `请选择${label}`);
+
+        if (rules.find(item => ('required' in item) && item.required)) {
+            required = true;
+        }
 
         let formLabel = label;
         if (labelTip) {

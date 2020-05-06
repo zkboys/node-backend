@@ -13,7 +13,7 @@ import {ModalContent} from 'src/library/components';
 export default class EditModal extends Component {
     state = {
         loading: false, // 页面加载loading
-        data: {},       // 表单回显数据
+        data: {},       // 回显数据
     };
 
     componentDidMount() {
@@ -32,7 +32,8 @@ export default class EditModal extends Component {
         this.setState({loading: true});
         this.props.ajax.get(`/mock/users/${id}`)
             .then(res => {
-                this.setState({data: res || {}});
+                this.setState({data: res});
+                this.form.setFieldsValue(res);
             })
             .finally(() => this.setState({loading: false}));
     };

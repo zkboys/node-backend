@@ -4,7 +4,6 @@ import {
     EditOutlined,
     LogoutOutlined,
     SettingOutlined,
-    UserOutlined,
 } from '@ant-design/icons';
 import {Menu, Dropdown} from 'antd';
 import {Link} from 'react-router-dom';
@@ -53,8 +52,7 @@ export default class HeaderUser extends Component {
             <div styleName="user-menu" ref={node => this.userMenu = node}>
                 <Dropdown overlay={menu} getPopupContainer={() => (this.userMenu || document.body)}>
                     <span styleName="account" className={className}>
-                        <UserOutlined/>
-                        <span style={{fontSize: 14}}>{name}</span>
+                        <span styleName="user-name">{name}</span>
                         <CaretDownOutlined/>
                     </span>
                 </Dropdown>
