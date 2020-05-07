@@ -130,6 +130,10 @@ export default class RestFullController {
     // 修改
     static async update(ctx) {
         const body = ctx.request.body;
+
+        if (!body) return ctx.fail('请传递需要更新的数据');
+        if (!body.id) return ctx.fail('需要更新的数据，必须含有「id」');
+
         const errors = await RestFullController.validateBody(ctx);
         if (errors) return ctx.fail(errors);
 

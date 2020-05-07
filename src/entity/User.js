@@ -41,7 +41,6 @@ export default {
     belongsTo: 'Role',
     // 忽略，不返给前端的字段
     excludeFields: ['password'],
-
     // 添加 修改时，不参与后端校验字段
     excludeValidateFields: ['password'],
 };
