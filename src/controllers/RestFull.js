@@ -1,8 +1,6 @@
 import _ from 'lodash';
 import inflection from 'inflection';
 import asyncValidator from 'async-validator';
-import {promisify} from 'util';
-
 
 // 通用的rest full 接口
 export default class RestFullController {

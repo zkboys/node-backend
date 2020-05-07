@@ -88,14 +88,13 @@ module.exports = {
     forceSync: true, // 开发时，强制同步数据库
     excludeFields: [], // 不给前端返回的字段
     excludeValidateFields: [], // 不参与后端校验的字段
-    // 依赖关系 相关 ，值为对应的模块名，支持数据添加多关联关系
+    // 实体间依赖关系 ，值为对应的模块名，支持数据，添加多个关联关系
     hasOne: 'User',
     hasMany: ['User', 'Role'],
     belongsTo: '',
-    belongsToMany: {model: 'Menu', through: 'RoleMenu'}, // ['', {model: '', through: ''}]  {model: '', through: ''}, 
+    belongsToMany: {model: 'Menu', through: 'RoleMenu'}, // 多对多写法 ['', {model: '', through: ''}]  {model: '', through: ''}, 
 }
 ```
-
 ## TODO
 - [ ] API文档
 - [x] jwt退出登录问题
