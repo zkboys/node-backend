@@ -73,7 +73,7 @@ module.exports = {
             allowNull: false,
             comment: '账号',
             
-            rules: [], // 校验规则
+            rules: [], // 校验规则 使用 https://github.com/yiminghe/async-validator
         },
         password: {
             type: STRING(100),

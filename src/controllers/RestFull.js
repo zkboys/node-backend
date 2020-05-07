@@ -1,5 +1,7 @@
 import _ from 'lodash';
 import inflection from 'inflection';
+import asyncValidator from 'async-validator';
+import {promisify} from 'util';
 
 
 // 通用的rest full 接口
@@ -255,7 +257,8 @@ export default class RestFullController {
         const attributes = ctx.$entityModel.tableAttributes;
         const {excludeValidateFields = []} = ctx.$entityModel.entityConfig;
         const ignoreFields = ['id', 'createdAt', 'updatedAt', ...excludeValidateFields];
-        const errors = [];
+        let errors = [];
+        let descriptor = null;
 
         for (const [field, options] of Object.entries(attributes)) {
             if (!ignoreFields.includes(field)) {
@@ -264,7 +267,13 @@ export default class RestFullController {
                 const value = body[field];
                 const id = body.id;
 
-                // 必填校验
+                // 存在rules 校验 配置，使用 https://github.com/yiminghe/async-validator 和ant design 使用的同一个校验库，可做前后端同构
+                if (rules?.length) {
+                    if(!descriptor) descriptor = {};
+                    descriptor[field] = rules;
+                }
+
+                // 来自数据库的 必填校验
                 if (!value) {
                     if (allowNull === false) {
                         errors.push(`「${label}」不可为空！`);
@@ -273,24 +282,36 @@ export default class RestFullController {
                     continue;
                 }
 
-                // 唯一性校验
+                // 来自数据库的 唯一性校验
                 if (unique) {
                     const data = await ctx.$entityModel.findOne({where: {[field]: value}});
 
                     if (data && data.id !== id) errors.push(`${label}：「${value}」已被占用！`);
                 }
 
-                // 长度校验
+                // 来自数据库的 长度校验
                 const length = type?.options?.length;
                 if (length && value.length > length) {
                     errors.push(`「${label}」长度不能大于${length}`);
                 }
+            }
+        }
 
-                // TODO 其他校验
+        // 存在rules相关校验
+        if(descriptor) {
+            const validator = new asyncValidator(descriptor);
 
-                console.log('rules:', rules);
+            try {
+                await validator.validate(body);
+            } catch (error) {
+                const {errors: errs, fields} = error;
 
-                // 可以贴合ant design 的rules方式，可以做到前后端同构
+                if (errs?.length) {
+                    errors = errors.concat(errs);
+                } else {
+                    // 不知道是什么错误
+                    errors.push(error);
+                }
             }
         }
 

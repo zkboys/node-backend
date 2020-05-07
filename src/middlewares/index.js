@@ -23,11 +23,12 @@ function success(data) {
 
 function fail(message, code = -1, data = null) {
     const messages = getMessages(message, code);
+    const firstMessage = messages[0];
 
     this.response.status = 400;
     this.body = {
         code,
-        message: messages[0],
+        message: 'message' in firstMessage ? firstMessage.message : firstMessage,
         messages,
         data,
     };
@@ -41,7 +42,12 @@ function getMessages(msg, code) {
 
         msg.forEach(item => {
             if (typeof item === 'object') {
-                messages = messages.concat(Object.values(item));
+                if ('message' in item && 'field' in item) {
+                    messages.push(item);
+                } else {
+                    messages = messages.concat(Object.values(item));
+                }
+
             } else if (typeof item === 'string') {
                 messages.push(item);
             }

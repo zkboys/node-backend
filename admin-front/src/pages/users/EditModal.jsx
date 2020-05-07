@@ -111,6 +111,13 @@ export default class EditModal extends Component {
                     />
                     <FormElement
                         {...formProps}
+                        type="email"
+                        label="邮箱"
+                        name="email"
+                        noSpace
+                    />
+                    <FormElement
+                        {...formProps}
                         type="select"
                         label="职位"
                         name="position"

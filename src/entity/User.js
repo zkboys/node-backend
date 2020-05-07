@@ -15,6 +15,14 @@ export default {
             allowNull: false,
             comment: '账号',
         },
+        email: {
+            type: STRING(100),
+            comment: '邮箱',
+            rules: [
+                {type: 'email', message: '请输入正确的邮箱！'},
+                {required: true, message: '邮箱不可为空！'},
+            ],
+        },
         position: {
             type: INTEGER,
             comment: '职位',
@@ -33,8 +41,12 @@ export default {
         remark: {
             type: TEXT,
             defaultValue: null,
+            rules: [
+                {required: true, message: '备注不可为空！'},
+            ],
         },
     },
+    // forceSync: true,
     // 关系
     belongsTo: 'Role',
     // 忽略，不返给前端的字段
