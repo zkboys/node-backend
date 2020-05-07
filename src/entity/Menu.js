@@ -9,13 +9,7 @@ export default {
             unique: true,
             defaultValue: UUIDV4,
         },
-        key: {
-            type: UUID,
-            allowNull: false,
-            defaultValue: UUIDV4,
-            unique: true,
-        },
-        parentKey: {
+        parentId: {
             type: UUID,
         },
         type: {
@@ -48,5 +42,5 @@ export default {
             comment: '第三方网站打开方式',
         },
     },
-    belongsToMany:['RoleMenu', 'Role'],
+    belongsToMany: {model: 'Role', through: 'RoleMenu'},
 };

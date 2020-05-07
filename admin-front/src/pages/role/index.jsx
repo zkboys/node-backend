@@ -27,6 +27,7 @@ export default class UserCenter extends Component {
         loadingRoleMenu: false, // 查询角色权限 loading标识
         selectedKeys: [],   // 角色对应的菜单
         selectedRoleId: undefined, // 当前选中角色
+        oldRoleMenuIds: [], // 角色原权限
     };
 
     columns = [
@@ -101,21 +102,35 @@ export default class UserCenter extends Component {
         // 根据id 获取 role对应的菜单权限
         const params = {roleId: id};
         this.setState({loadingRoleMenu: true});
-        this.props.ajax.get('/mock/roles/menus', params)
+        this.props.ajax.get('/roleMenus', params)
             .then(res => {
-                this.setState({selectedKeys: res});
+                const oldRoleMenuIds = [];
+                const selectedKeys = [];
+                (res || []).forEach(item => {
+                    const {id, menuId} = item;
+                    oldRoleMenuIds.push(id);
+                    selectedKeys.push(menuId);
+                });
+
+
+                this.setState({selectedKeys, oldRoleMenuIds});
             })
             .finally(() => this.setState({loadingRoleMenu: false}));
     };
 
     handleSaveRoleMenu = () => {
-        const {selectedKeys, selectedRoleId} = this.state;
-        const params = selectedKeys.map(menuId => ({roleId: selectedRoleId, menuId}));
+        const {selectedKeys, selectedRoleId, oldRoleMenuIds} = this.state;
 
+        // 先删除原先的数据
         this.setState({loading: true});
-        this.props.ajax.post('/roleMenus', params, {successTip: '保存角色权限成功！'})
-            .then(res => {
+        this.props.ajax.del('/roleMenus', {ids: oldRoleMenuIds.join(',')})
+            .then(() => {
+                // 保存新数据
+                const params = selectedKeys.map(menuId => ({roleId: selectedRoleId, menuId}));
 
+                this.setState({loading: true});
+                this.props.ajax.post('/roleMenus', params, {successTip: '保存角色权限成功！'})
+                    .finally(() => this.setState({loading: false}));
             })
             .finally(() => this.setState({loading: false}));
     };
@@ -184,7 +199,10 @@ export default class UserCenter extends Component {
                     <Col span={10}>
                         <MenuSelect
                             value={selectedKeys}
-                            onChange={selectedKeys => this.setState({selectedKeys})}
+                            onChange={selectedKeys => {
+                                console.log(selectedKeys);
+                                this.setState({selectedKeys});
+                            }}
                         />
                     </Col>
                 </Row>

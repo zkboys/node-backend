@@ -5,7 +5,6 @@ const inflect = I();
 
 // 通用的rest full 接口
 export default class RestFullController {
-
     // 获取列表
     static async get(ctx) {
         const attributes = ctx.$entityModel.tableAttributes;
@@ -16,15 +15,20 @@ export default class RestFullController {
 
         // 关联查询
         const include = RestFullController.getInclude(ctx);
-
         const allFields = Object.keys(attributes);
 
         // 拼接查询条件
-        for (const [key, value] of Object.entries(others)) {
-            if (!allFields.includes(key)) return ctx.fail(`查询条件字段：「${key}」无对应数据库字段！`);
+        for (let [key, value] of Object.entries(others)) {
+            if (!allFields.includes(key)) {
+
+                // return ctx.fail(`查询条件字段：「${key}」无对应数据库字段！`)
+                continue;
+            }
+
 
             // 也许是id 精确查询
             if (key.endsWith('Id')) {
+                key = inflect.underscore(key);
                 conditions.push({[key]: value});
             } else {
                 // 模糊查询
@@ -115,39 +119,60 @@ export default class RestFullController {
         ctx.success();
     }
 
+    // 批量删除删除
+    static async batchDel(ctx) {
+        const {ids} = ctx.query;
+        if (!ids) return ctx.fail('请传递需要删除的ids，以英文逗号分隔');
+
+        const idArr = ids.split(',');
+
+        await ctx.$entityModel.destroy({where: {id: {$in: idArr}}});
+
+        ctx.success();
+    }
+
     /**
      * 获取关联关系
      * @param ctx
      * @returns {[]}
      */
     static getInclude(ctx) {
-        const {tableAttributes: attributes, entityConfig: {belongsToMany}} = ctx.$entityModel;
-        const include = [];
+        // 可以通过查询参数，控制是否启用关联查询
+        const {include = true} = ctx.query;
 
-        Object.entries(attributes).forEach(([field, config]) => {
+        if (include !== true && include !== 'true') return undefined;
 
-            const {references} = config;
-            if (references) {
-                const {model} = references;
-                const singularizeName = inflect.singularize(model);
-                const entityName = inflect.camelize(singularizeName);
+        const {entityConfig} = ctx.$entityModel;
 
-                include.push({model: ctx.$entity[entityName], _modelName: entityName});
-            }
-        });
+        const {hasOne, hasMany, belongsTo, belongsToMany} = entityConfig;
 
-        // 多对多关系attributes体现不出来
-        if (belongsToMany && Array.isArray(belongsToMany)) {
-            const [through, model] = belongsToMany;
-            const iObj = {};
+        const includeArr = [];
 
-            if (model) iObj.model = ctx.$entity[model];
-            if (through) iObj.through = ctx.$entity[through];
+        const keys = ['belongsToMany', 'hasMany'];
 
-            include.push(iObj);
-        }
+        Object.entries({hasOne, hasMany, belongsTo, belongsToMany})
+            .forEach(([keyWord, value]) => {
+                if (!value) return;
+                if (!Array.isArray(value)) value = [value];
 
-        return include.length ? include : undefined;
+                value.forEach(entityName => {
+                    if (typeof entityName === 'string') {
+                        const _modelName = keys.includes(keyWord) ? inflect.pluralize(entityName) : entityName;
+
+                        includeArr.push({model: ctx.$entity[entityName], _modelName});
+                    } else {
+                        const {model, through} = entityName;
+                        const _modelName = keys.includes(keyWord) ? inflect.pluralize(model) : model;
+
+                        includeArr.push({
+                            model: ctx.$entity[model],
+                            through: ctx.$entity[through],
+                            _modelName,
+                        });
+                    }
+                });
+            });
+        return includeArr.length ? includeArr : undefined;
     }
 
     /**
@@ -175,7 +200,7 @@ export default class RestFullController {
                     const includeModel = jsonItem[_modelName];
                     if (includeModel) {
                         const {excludeFields: efs} = model.entityConfig;
-                        jsonItem[_modelName] = _.omit(includeModel, efs);
+                        jsonItem[_modelName] = Array.isArray(includeModel) ? includeModel.map(item => _.omit(item, efs)) : _.omit(includeModel, efs);
                     }
                 });
             }

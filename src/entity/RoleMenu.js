@@ -18,4 +18,5 @@ export default {
             allowNull: false,
         },
     },
+    belongsTo: ['Menu', 'Role'],
 };

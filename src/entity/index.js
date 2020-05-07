@@ -47,21 +47,20 @@ Object.entries(entities).forEach(([entityName, entity]) => {
 
     const {hasOne, hasMany, belongsTo, belongsToMany} = entityConfig;
 
-    if (hasOne) entity.hasOne(entities[hasOne]);
-    if (hasMany) entity.hasMany(entities[hasMany]);
-    if (belongsTo) entity.belongsTo(entities[belongsTo]);
+    Object.entries({hasOne, hasMany, belongsTo, belongsToMany})
+        .forEach(([keyWord, value]) => {
+            if (!value) return;
+            if (!Array.isArray(value)) value = [value];
 
-    if (belongsToMany) {
-        // 多对多关系
-        if (Array.isArray(belongsToMany)) {
-            const [through, target] = belongsToMany;
-            entity.belongsToMany(entities[target], {
-                through: entities[through],
+            value.forEach(item => {
+                if (typeof item === 'string') {
+                    entity[keyWord](entities[item]);
+                } else {
+                    const {model, through} = item;
+                    entity[keyWord](entities[model], {through: entities[through]});
+                }
             });
-        } else {
-            entity.belongsToMany(entities[belongsToMany]);
-        }
-    }
+        });
 });
 
 // 只在开发模式下同步数据库 添加force: true 会删除数据库之后，重新创建，会丢失数据

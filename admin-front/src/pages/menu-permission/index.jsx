@@ -71,12 +71,12 @@ export default class index extends Component {
                     {
                         label: '添加子菜单',
                         icon: 'folder-add',
-                        onClick: () => this.setState({data: {parentKey: record.key, type: '1'}, visible: true}),
+                        onClick: () => this.setState({data: {parentId: record.id, type: '1'}, visible: true}),
                     },
                     {
                         label: '添加子功能',
                         icon: 'file-add',
-                        onClick: () => this.setState({data: {parentKey: record.key, type: '2'}, visible: true}),
+                        onClick: () => this.setState({data: {parentId: record.id, type: '2'}, visible: true}),
                     },
                 ];
                 return <Operator items={items}/>;
@@ -89,34 +89,30 @@ export default class index extends Component {
     }
 
     handleSearch() {
-        localMenus().then(menus => {
-            // 菜单根据order 排序
-            const orderedData = [...menus].sort((a, b) => {
-                const aOrder = a.order || 0;
-                const bOrder = b.order || 0;
-
-                // 如果order都不存在，根据 text 排序
-                if (!aOrder && !bOrder) {
-                    return a.text > b.text ? 1 : -1;
-                }
-
-                return bOrder - aOrder;
-            });
-
-            const menuTreeData = convertToTree(orderedData);
-
-            this.setState({menus: menuTreeData});
-        });
-        /*
-        // TODO 获取所有的菜单，不区分用户
         this.setState({loading: true});
-        this.props.ajax
-            .get('/menus')
+        this.props.ajax.get('/menus')
             .then(res => {
-                this.setState({menus: res});
+                const menus = (res || []).map(item => ({key: item.id, parentKey: item.parentId, ...item}));
+
+                // 菜单根据order 排序
+                const orderedData = [...menus].sort((a, b) => {
+                    const aOrder = a.order || 0;
+                    const bOrder = b.order || 0;
+
+                    // 如果order都不存在，根据 text 排序
+                    if (!aOrder && !bOrder) {
+                        return a.text > b.text ? 1 : -1;
+                    }
+
+                    return bOrder - aOrder;
+                });
+
+                const menuTreeData = convertToTree(orderedData);
+
+                this.setState({menus: menuTreeData});
             })
             .finally(() => this.setState({loading: false}));
-        */
+
     }
 
     handleAddTopMenu = () => {
@@ -124,12 +120,10 @@ export default class index extends Component {
     };
 
     handleDeleteNode = (record) => {
-        const {key} = record;
-
-        // TODO
+        const {id} = record;
         this.setState({loading: true});
         this.props.ajax
-            .del(`/menus/${key}`)
+            .del(`/menus/${id}`)
             .then(() => {
                 this.setState({visible: false});
                 this.handleSearch();

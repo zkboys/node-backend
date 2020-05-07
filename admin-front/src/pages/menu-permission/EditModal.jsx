@@ -9,12 +9,12 @@ import config from 'src/commons/config-hoc';
         width: 700,
         title: props => {
             const {data = {}} = props;
-            const {key, type} = data;
+            const {id, type} = data;
             const isMenu = type === '1';
 
-            if (isMenu) return key ? '编辑菜单' : '添加菜单';
+            if (isMenu) return id ? '编辑菜单' : '添加菜单';
 
-            return key ? '编辑功能' : '添加功能';
+            return id ? '编辑功能' : '添加功能';
         },
     },
 })
@@ -27,14 +27,11 @@ export default class EditModal extends Component {
     handleSubmit = (values) => {
         if (this.state.loading) return;
 
-        console.log('Received values of form: ', values);
-
         // 如果key存在视为修改，其他为添加
-        const {key} = values;
-        const ajax = key ? this.props.ajax.put : this.props.ajax.post;
+        const {id} = values;
+        const ajax = id ? this.props.ajax.put : this.props.ajax.post;
         const {onOk} = this.props;
 
-        // TODO
         this.setState({loading: true});
         ajax('/menus', values)
             .then(() => {
@@ -73,8 +70,8 @@ export default class EditModal extends Component {
                     style={{padding: 16}}
                     initialValues={data}
                 >
-                    <FormElement {...formProps} type="hidden" name="key"/>
-                    <FormElement {...formProps} type="hidden" name="parentKey"/>
+                    <FormElement {...formProps} type="hidden" name="id"/>
+                    <FormElement {...formProps} type="hidden" name="parentId"/>
                     <FormElement {...formProps} type="hidden" name="type"/>
                     <FormRow>
                         <FormElement

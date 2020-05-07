@@ -24,5 +24,5 @@ export default {
         },
     },
     hasMany: 'User',
-    belongsToMany: ['RoleMenu', 'Menu'],
+    belongsToMany: {model: 'Menu', through: 'RoleMenu'},
 };

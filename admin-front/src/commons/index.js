@@ -164,6 +164,7 @@ export function getMenuTreeDataAndPermissions(menus) {
 
     // 设置顶级节点path，有的顶级没有指定path，默认设置为子孙节点的第一个path
     const findPath = (node) => {
+        if (!node.key) return;
         const children = orderedData.filter(item => item.parentKey === node.key);
         let path = '';
         if (children && children.length) {
