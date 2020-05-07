@@ -34,19 +34,12 @@ export default class extends Component {
 
         const {userName, password} = values;
         const params = {
-            userName,
+            account: userName,
             password,
         };
 
-        setLoginUser({
-            id: params.userName,
-            name: params.userName,
-        });
-        toHome();
-
-        /*
         this.setState({loading: true, message: ''});
-        this.props.ajax.post('/mock/login', params, {errorTip: false})
+        this.props.ajax.post('/login', params, {errorTip: false})
             .then(res => {
                 const {id, name} = res;
                 setLoginUser({
@@ -57,7 +50,6 @@ export default class extends Component {
             })
             .catch(() => this.setState({message: '用户名或密码错误！'}))
             .finally(() => this.setState({loading: false}));
-        */
     };
 
     render() {

@@ -50,7 +50,6 @@ function getEntityModel(ctx, next) {
     if (!entity) return ctx.fail(`没有${model}对应的entity${entityName}!`);
 
     ctx.$entityModel = entity;
-    console.log(entity);
     return next();
 }
 
@@ -59,6 +58,8 @@ export const api = apiRouter
     .get('/:model', getEntityModel, RestFull.get)
     .get('/:model/:id', getEntityModel, RestFull.getById)
     .post('/:model', getEntityModel, RestFull.post)
+    .put('/:model', getEntityModel, RestFull.put)
+    .del('/:model/:id', getEntityModel, RestFull.del)
     .post('/upload', Util.upload)
     .post('*', ctx => (ctx.status = 404))
     .put('*', ctx => (ctx.status = 404))

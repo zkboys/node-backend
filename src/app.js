@@ -59,8 +59,6 @@ app
         cookie: jwtCookieName,
         getToken: (ctx) => ctx.state.validateToken,
     }).unless((ctx) => {
-        return true; // TODO
-
         if (/^\/api/.test(ctx.path)) {
             return pathToRegexp([
                 '/api/login',

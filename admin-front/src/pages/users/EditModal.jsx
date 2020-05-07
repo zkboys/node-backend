@@ -3,6 +3,7 @@ import {Form} from 'antd';
 import {FormElement} from 'src/library/components';
 import config from 'src/commons/config-hoc';
 import {ModalContent} from 'src/library/components';
+import {position} from './';
 
 @config({
     ajax: true,
@@ -14,6 +15,7 @@ export default class EditModal extends Component {
     state = {
         loading: false, // 页面加载loading
         data: {},       // 回显数据
+        roles: [],
     };
 
     componentDidMount() {
@@ -22,7 +24,18 @@ export default class EditModal extends Component {
         if (isEdit) {
             this.fetchData();
         }
+
+        this.fetchRoles();
     }
+
+    fetchRoles = () => {
+        this.setState({loading: true});
+        this.props.ajax.get('/roles')
+            .then(res => {
+                this.setState({roles: res});
+            })
+            .finally(() => this.setState({loading: false}));
+    };
 
     fetchData = () => {
         if (this.state.loading) return;
@@ -30,7 +43,7 @@ export default class EditModal extends Component {
         const {id} = this.props;
 
         this.setState({loading: true});
-        this.props.ajax.get(`/mock/users/${id}`)
+        this.props.ajax.get(`/users/${id}`)
             .then(res => {
                 this.setState({data: res});
                 this.form.setFieldsValue(res);
@@ -45,8 +58,9 @@ export default class EditModal extends Component {
         const ajaxMethod = isEdit ? this.props.ajax.put : this.props.ajax.post;
         const successTip = isEdit ? '修改成功！' : '添加成功！';
 
+        if(!values.password)
         this.setState({loading: true});
-        ajaxMethod('/mock/users', values, {successTip})
+        ajaxMethod('/users', values, {successTip})
             .then(() => {
                 const {onOk} = this.props;
                 onOk && onOk();
@@ -56,7 +70,7 @@ export default class EditModal extends Component {
 
     render() {
         const {isEdit} = this.props;
-        const {loading, data} = this.state;
+        const {loading, data, roles} = this.state;
         const formProps = {
             labelWidth: 100,
         };
@@ -69,6 +83,7 @@ export default class EditModal extends Component {
                 onCancel={() => this.form.resetFields()}
             >
                 <Form
+                    name="user-edit"
                     ref={form => this.form = form}
                     onFinish={this.handleSubmit}
                     initialValues={data}
@@ -77,52 +92,42 @@ export default class EditModal extends Component {
 
                     <FormElement
                         {...formProps}
-                        label="用户名"
-                        name="name"
+                        label="账户"
+                        name="account"
                         required
                         noSpace
                     />
                     <FormElement
                         {...formProps}
-                        type="number"
-                        label="年龄"
-                        name="age"
+                        label="密码"
+                        name="password"
                         required
-                    />
-                    <FormElement
-                        {...formProps}
-                        type="select"
-                        label="工作"
-                        name="job"
-                        options={[
-                            {value: '1', label: '前端开发'},
-                            {value: '2', label: '后端开发'},
-                        ]}
+                        noSpace
                     />
                     <FormElement
                         {...formProps}
                         type="select"
                         label="职位"
                         name="position"
-                        options={[
-                            {value: '1', label: '员工'},
-                            {value: '2', label: 'CEO'},
-                        ]}
+                        allowClea
+                        options={position}
                     />
                     <FormElement
                         {...formProps}
                         type="select"
-                        mode="multiple"
                         showSearch
                         optionFilterProp='children'
                         label="角色"
-                        name="role"
-                        options={[
-                            {value: '1', label: '员工'},
-                            {value: '2', label: 'CEO'},
-                        ]}
+                        name="roleId"
+                        options={roles.map(item => ({value: item.id, label: item.name}))}
                     />
-
+                    <FormElement
+                        {...formProps}
+                        type="textarea"
+                        label="描述"
+                        name="remark"
+                        rows={4}
+                    />
                 </Form>
             </ModalContent>
         );

@@ -12,6 +12,11 @@ import {
 } from 'src/library/components';
 import EditModal from './EditModal';
 
+export const position = [
+    {value: 1, label: '员工'},
+    {value: 2, label: 'CEO'},
+];
+
 @config({
     path: '/users',
     ajax: true,
@@ -30,10 +35,10 @@ export default class UserCenter extends Component {
     };
 
     columns = [
-        {title: '用户名', dataIndex: 'name', width: 200},
-        {title: '年龄', dataIndex: 'age', width: 200},
-        {title: '工作', dataIndex: 'job', width: 200},
-        {title: '职位', dataIndex: 'position', width: 200},
+        {title: '用户名', dataIndex: 'account', width: 200},
+        {title: '职位', dataIndex: 'position', width: 200, render: value => position.find(item => item.value === value)?.label},
+        {title: '角色', dataIndex: ['Role', 'name'], width: 200},
+        {title: '备注', dataIndex: 'remark'},
         {
             title: '操作', dataIndex: 'operator', width: 100,
             render: (value, record) => {
@@ -73,7 +78,7 @@ export default class UserCenter extends Component {
         };
 
         this.setState({loading: true});
-        this.props.ajax.get('/mock/users', params)
+        this.props.ajax.get('/users', params)
             .then(res => {
                 const dataSource = res?.list || [];
                 const total = res?.total || 0;
@@ -142,17 +147,15 @@ export default class UserCenter extends Component {
                             <FormElement
                                 {...formProps}
                                 label="名称"
-                                name="name"
+                                name="account"
                             />
                             <FormElement
                                 {...formProps}
                                 type="select"
                                 label="职位"
-                                name="job"
-                                options={[
-                                    {value: 1, label: 1},
-                                    {value: 2, label: 2},
-                                ]}
+                                name="position"
+                                allowClear
+                                options={position}
                             />
                             <FormElement layout>
                                 <Button type="primary" htmlType="submit">提交</Button>

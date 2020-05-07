@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "start": "node scripts/start.js",
-        "build": "cross-env NODE_ENV=production node scripts/build.js",
+        "build": "cross-env NODE_ENV=production BUILD_PATH=../dist node scripts/build.js",
         "build:pre": "cross-env PUBLIC_URL=/react-admin-live BASE_NAME=/react-admin-live  cross-env MOCK=true yarn build",
         "build:dll": "rimraf config/dll && webpack --config config/webpack.dll.config.js",
         "build:analyz": "cross-env ANALYZ=true yarn build",

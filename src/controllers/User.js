@@ -5,14 +5,13 @@ import svgCaptcha from 'svg-captcha';
 import uuid from 'uuid';
 
 import {Get, Post} from '../routes';
-import util from '../util';
-import ft from '../entity/fields_table';
+import {redis} from '../util';
+import passwordUtil from '../util/password-util';
+import userEntity from '../entity/User';
 
 const jwtSecret = config.get('jwt.secret');
 const jwtExpire = config.get('jwt.expire');
 const jwtCookieName = config.get('jwt.cookieName');
-
-const redis = util.redis;
 
 export default class UserController {
     // static routePrefix = 'user';
@@ -29,9 +28,7 @@ export default class UserController {
 
         if (user) return ctx.fail('账号已被使用');
 
-        const newPassword = util.bhash(password);
-
-        const createdUser = await ctx.$entity.User.create({account, password: newPassword});
+        const createdUser = await ctx.$entity.User.create({account, password: password});
 
         ctx.success(createdUser);
     }
@@ -62,10 +59,8 @@ export default class UserController {
 
         const errorMessage = '用户名或密码错误';
 
-        console.log(account);
-
         const user = await ctx.$entity.User.findOne({where: {account}});
-        const verifyPassword = user && util.bcompare(password, user.password);
+        const verifyPassword = user && passwordUtil.compare(password, user.password);
 
         if (!verifyPassword || !user) {
             return ctx.fail(errorMessage);
@@ -88,7 +83,7 @@ export default class UserController {
         // 登录成功，清除redis中的browserId
         await redis.set(`${account}`, 0);
 
-        return ctx.success(_.pick(user, ft.user));
+        return ctx.success(_.omit(user.toJSON(), userEntity.excludeFields));
     }
 
     // 退出登录
@@ -115,26 +110,16 @@ export default class UserController {
         if (!user) return ctx.fail('用户不存在');
 
         //  验证旧密码
-        const verifyPassword = util.bcompare(oldPassword, user.password);
+        const verifyPassword = passwordUtil.compare(oldPassword, user.password);
         if (!verifyPassword) return ctx.fail('原密码不正确！');
 
         //  新密码不能与旧密码相同
-        const isSamePassword = util.bcompare(newPassword, user.password);
+        const isSamePassword = passwordUtil.compare(newPassword, user.password);
         if (isSamePassword) return ctx.fail('新旧密码不能相同，请重新设置！');
 
-        const password = util.bhash(newPassword);
-
-        await ctx.$entity.User.update({password}, {where: {id}});
+        await ctx.$entity.User.update({password: newPassword}, {where: {id}});
 
         this.logout(ctx);
-    }
-
-    // 查询所有用户
-    @Get('/users')
-    static async findAll(ctx) {
-        const users = await ctx.$entity.User.findAll();
-
-        ctx.success(users.map(user => _.pick(user, ft.user)));
     }
 
     // 生成图片验证码
@@ -152,7 +137,6 @@ export default class UserController {
 
         const {data, text} = captcha;
 
-        const redis = util.redis;
         redis.set(`captchaId${captchaId}`, text);
 
         ctx.success({captcha: data, captchaId});

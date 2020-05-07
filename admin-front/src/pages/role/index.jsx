@@ -74,7 +74,7 @@ export default class UserCenter extends Component {
 
         // 一般系统中，角色不会太多，不做分页查询了
         this.setState({loading: true});
-        this.props.ajax.get('/mock/role', params)
+        this.props.ajax.get('/roles', params)
             .then(res => {
                 const dataSource = res || [];
 
@@ -90,7 +90,7 @@ export default class UserCenter extends Component {
         if (this.state.deleting) return;
 
         this.setState({deleting: true});
-        this.props.ajax.del(`/mock/roles/${id}`, null, {successTip: '删除成功！', errorTip: '删除失败！'})
+        this.props.ajax.del(`/roles/${id}`, null, {successTip: '删除成功！', errorTip: '删除失败！'})
             .then(() => this.form.submit())
             .finally(() => this.setState({deleting: false}));
     };

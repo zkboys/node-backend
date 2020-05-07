@@ -1,4 +1,4 @@
-import {STRING, UUID} from 'sequelize';
+import {STRING, UUID, UUIDV4} from 'sequelize';
 
 export default {
     attributes: {
@@ -6,6 +6,7 @@ export default {
             type: UUID,
             allowNull: false,
             primaryKey: true,
+            defaultValue: UUIDV4,
         },
         key: {
             type: STRING,

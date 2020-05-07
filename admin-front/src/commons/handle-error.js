@@ -14,7 +14,8 @@ function getErrorTip({error, errorTip}) {
 
     // 后端返回数据规范不同，这里可能需要修改
     if (error && error.response) {
-        const {status, message, data} = error.response;
+        const {status, data} = error.response;
+        const message = data?.message;
 
         if (status === 403) return '您无权访问';
 

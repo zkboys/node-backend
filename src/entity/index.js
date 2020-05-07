@@ -1,6 +1,7 @@
 import path from 'path';
+import {Model} from 'sequelize';
 import loadFile from '../util/loadFile';
-import {createModel} from './util';
+import {sequelize} from './util';
 import config from 'config';
 
 const isDev = config.get('isDev');
@@ -9,7 +10,7 @@ const root = __dirname;
 const dir = path.resolve(__dirname, '**/*.js');
 
 // 相对root的文件路径
-const ignoreFiles = ['./index.js', './fields_table.js', './util.js'];
+const ignoreFiles = ['./index.js', './util.js'];
 
 // 自动加载entity下的文件
 const entities = loadFile({
@@ -17,14 +18,61 @@ const entities = loadFile({
     root,
     ignoreFiles,
     operator: ({fileName, content}) => {
-        const model = createModel(fileName, content);
+        let {attributes, options, forceSync} = content;
+        if (!options) options = {};
 
-        // 同步数据库，一般用于开发环境比较好 添加force: true 会删除数据库之后，重新创建，会丢失数据
-        if (isDev) model.sync();
-        // if (isDev) model.sync({force: true});
+        if (!options.modelName) options.modelName = fileName;
 
-        return model;
+        if (!options.underscored) options.underscored = true;
+
+        class TemplateModel extends Model {
+            static entityConfig = content;
+        }
+
+        TemplateModel.init(attributes, {sequelize, ...options});
+
+        // 开发模式下，通过forceSync字段，可以强制同步创建数据库
+        if (forceSync && isDev) {
+            TemplateModel.sync({force: true});
+        }
+
+
+        return TemplateModel;
     },
+});
+
+// 添加关系
+const {User, Role} = entities;
+
+// 角色:用户 => 1:n
+User.belongsTo(Role);
+Role.hasMany(User);
+
+// 只在开发模式下同步数据库 添加force: true 会删除数据库之后，重新创建，会丢失数据
+isDev && sequelize.sync().then(async () => {
+    // 初始化数据
+    console.log('数据库同步完成');
+    let role = await Role.findOne();
+    if (!role) {
+        role = await Role.create({
+            name: '管理员',
+            description: '管理员拥有所有权限',
+        });
+    }
+
+    const users = await User.findAll();
+    if (!users.length) {
+        // admin / 111
+        // User.create({
+        //     account: 'admin',
+        //     password: '$2a$08$RE0ux8KuSSlrfz8QaxQj4OwKIxoZD.9.WBOMYFjP6spz4sZD7uTDO',
+        //     roleId: role.id,
+        // });
+        await role.createUser({
+            account: 'admin',
+            password: '$2a$08$RE0ux8KuSSlrfz8QaxQj4OwKIxoZD.9.WBOMYFjP6spz4sZD7uTDO',
+        });
+    }
 });
 
 module.exports = entities;

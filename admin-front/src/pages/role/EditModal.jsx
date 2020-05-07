@@ -30,7 +30,7 @@ export default class EditModal extends Component {
         const {id} = this.props;
 
         this.setState({loading: true});
-        this.props.ajax.get(`/mock/roles/${id}`)
+        this.props.ajax.get(`/roles/${id}`)
             .then(res => {
                 this.setState({data: res || {}});
                 this.form.setFieldsValue(res);
@@ -44,7 +44,7 @@ export default class EditModal extends Component {
         const {isEdit} = this.props;
         const successTip = isEdit ? '修改成功！' : '添加成功！';
         const ajaxMethod = isEdit ? this.props.ajax.put : this.props.ajax.post;
-        const ajaxUrl = isEdit ? '/role' : '/role';
+        const ajaxUrl = isEdit ? '/roles' : '/roles';
 
         this.setState({loading: true});
         ajaxMethod(ajaxUrl, values, {successTip})

@@ -1,4 +1,4 @@
-import {STRING, UUID, UUIDV4} from 'sequelize';
+import {UUID, STRING, DOUBLE, UUIDV4} from 'sequelize';
 
 export default {
     attributes: {
@@ -9,18 +9,20 @@ export default {
             unique: 'compositeIndex',
             defaultValue: UUIDV4,
         },
-        name: {
-            type: STRING(50),
+        title: {
+            type: STRING(20),
             allowNull: false,
-            unique: true,
-            comment: '角色名',
-            abc: '我是abc', // 可以自定义字段
-            rules: [],
+        },
+        price: {
+            type: DOUBLE,
         },
         description: {
             type: STRING(200),
-            // allowNull: false,
-            comment: '描述',
+        },
+        userId: {
+            type: UUID,
+            allowNull: false,
+            comment: '用户',
         },
     },
 };

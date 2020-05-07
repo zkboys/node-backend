@@ -166,3 +166,19 @@ JWT_SECRET
 1. 只有app类型计算核算成本
 1. 非app类型系统，计算被依赖数量时，只计算app类型
 1. 非APP类型，如果没有被任何系统依赖，总成本为自身成本，有被其他系统依赖，总成本为0
+
+
+## entity配置
+
+```javascript
+module.exports = {
+    attributes: {
+        field: {
+            rules: [], // 校验规则
+        }
+    },
+    options: {},
+    excludeFields: [], // 不给前端返回的字段
+    excludeValidateFields: [], // 不参与后端校验的字段
+}
+```
