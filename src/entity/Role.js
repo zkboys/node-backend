@@ -6,7 +6,7 @@ export default {
             type: UUID,
             allowNull: false,
             primaryKey: true,
-            unique: 'compositeIndex',
+            unique: true,
             defaultValue: UUIDV4,
         },
         name: {
@@ -23,4 +23,6 @@ export default {
             comment: '描述',
         },
     },
+    hasMany: 'User',
+    belongsToMany: ['RoleMenu', 'Menu'],
 };

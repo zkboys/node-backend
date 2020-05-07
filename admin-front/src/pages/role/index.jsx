@@ -109,11 +109,11 @@ export default class UserCenter extends Component {
     };
 
     handleSaveRoleMenu = () => {
-        const {selectedKeys} = this.state;
+        const {selectedKeys, selectedRoleId} = this.state;
+        const params = selectedKeys.map(menuId => ({roleId: selectedRoleId, menuId}));
 
-        const params = {ids: selectedKeys};
         this.setState({loading: true});
-        this.props.ajax.post('/mock/roles/menus', params, {successTip: '保存角色权限成功！'})
+        this.props.ajax.post('/roleMenus', params, {successTip: '保存角色权限成功！'})
             .then(res => {
 
             })

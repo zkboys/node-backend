@@ -77,6 +77,18 @@ export default class RestFullController {
     // 新增
     static async post(ctx) {
         const body = ctx.request.body;
+
+        // 有可能是批量添加
+        if (Array.isArray(body)) {
+            for (const data of body) {
+                const errors = await RestFullController.validateBody(ctx, data);
+                if (errors) return ctx.fail(errors);
+            }
+
+            const result = await ctx.$entityModel.bulkCreate(body);
+            return ctx.success(result);
+        }
+
         const errors = await RestFullController.validateBody(ctx);
         if (errors) return ctx.fail(errors);
 
@@ -109,8 +121,8 @@ export default class RestFullController {
      * @returns {[]}
      */
     static getInclude(ctx) {
-        const attributes = ctx.$entityModel.tableAttributes;
-        let include = undefined;
+        const {tableAttributes: attributes, entityConfig: {belongsToMany}} = ctx.$entityModel;
+        const include = [];
 
         Object.entries(attributes).forEach(([field, config]) => {
 
@@ -120,12 +132,22 @@ export default class RestFullController {
                 const singularizeName = inflect.singularize(model);
                 const entityName = inflect.camelize(singularizeName);
 
-                if (!include) include = [];
                 include.push({model: ctx.$entity[entityName], _modelName: entityName});
             }
         });
 
-        return include;
+        // 多对多关系attributes体现不出来
+        if (belongsToMany && Array.isArray(belongsToMany)) {
+            const [through, model] = belongsToMany;
+            const iObj = {};
+
+            if (model) iObj.model = ctx.$entity[model];
+            if (through) iObj.through = ctx.$entity[through];
+
+            include.push(iObj);
+        }
+
+        return include.length ? include : undefined;
     }
 
     /**
@@ -169,10 +191,11 @@ export default class RestFullController {
     /**
      * 添加 修改时，校验字段
      * @param ctx
+     * @param data
      * @returns {Promise<*>}
      */
-    static async validateBody(ctx) {
-        const body = ctx.request.body;
+    static async validateBody(ctx, data) {
+        const body = data || ctx.request.body;
         const attributes = ctx.$entityModel.tableAttributes;
         const {excludeValidateFields = []} = ctx.$entityModel.entityConfig;
         const ignoreFields = ['id', 'createdAt', 'updatedAt', ...excludeValidateFields];

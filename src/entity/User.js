@@ -7,7 +7,7 @@ export default {
             type: UUID,
             allowNull: false,
             primaryKey: true,
-            unique: 'compositeIndex',
+            unique: true,
             defaultValue: UUIDV4,
         },
         account: {
@@ -37,6 +37,8 @@ export default {
             defaultValue: null,
         },
     },
+    // 关系
+    belongsTo: 'Role',
     // 忽略，不返给前端的字段
     excludeFields: ['password'],
 

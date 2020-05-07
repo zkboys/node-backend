@@ -180,5 +180,10 @@ module.exports = {
     options: {},
     excludeFields: [], // 不给前端返回的字段
     excludeValidateFields: [], // 不参与后端校验的字段
+    // 依赖关系 相关 ，值为对应的模块名
+    hasOne: '',
+    hasMany: '',
+    belongsTo: '',
+    belongsToMany: '', // ['', ''] 
 }
 ```

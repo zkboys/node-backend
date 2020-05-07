@@ -42,16 +42,35 @@ const entities = loadFile({
 });
 
 // 添加关系
-const {User, Role} = entities;
+Object.entries(entities).forEach(([entityName, entity]) => {
+    const {entityConfig} = entity;
 
-// 角色:用户 => 1:n
-User.belongsTo(Role);
-Role.hasMany(User);
+    const {hasOne, hasMany, belongsTo, belongsToMany} = entityConfig;
+
+    if (hasOne) entity.hasOne(entities[hasOne]);
+    if (hasMany) entity.hasMany(entities[hasMany]);
+    if (belongsTo) entity.belongsTo(entities[belongsTo]);
+
+    if (belongsToMany) {
+        // 多对多关系
+        if (Array.isArray(belongsToMany)) {
+            const [through, target] = belongsToMany;
+            entity.belongsToMany(entities[target], {
+                through: entities[through],
+            });
+        } else {
+            entity.belongsToMany(entities[belongsToMany]);
+        }
+    }
+});
 
 // 只在开发模式下同步数据库 添加force: true 会删除数据库之后，重新创建，会丢失数据
 isDev && sequelize.sync().then(async () => {
     // 初始化数据
     console.log('数据库同步完成');
+
+    const {User, Role} = entities;
+
     let role = await Role.findOne();
     if (!role) {
         role = await Role.create({

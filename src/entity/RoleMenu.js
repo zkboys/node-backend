@@ -9,10 +9,13 @@ export default {
             unique: true,
             defaultValue: UUIDV4,
         },
-        userId: {
+        roleId: {
             type: UUID,
             allowNull: false,
-            comment: '用户',
+        },
+        menuId: {
+            type: UUID,
+            allowNull: false,
         },
     },
 };

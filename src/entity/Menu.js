@@ -6,7 +6,7 @@ export default {
             type: UUID,
             allowNull: false,
             primaryKey: true,
-            unique: 'compositeIndex',
+            unique: true,
             defaultValue: UUIDV4,
         },
         key: {
@@ -48,4 +48,5 @@ export default {
             comment: '第三方网站打开方式',
         },
     },
+    belongsToMany:['RoleMenu', 'Role'],
 };
