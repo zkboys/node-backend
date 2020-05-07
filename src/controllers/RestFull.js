@@ -304,8 +304,7 @@ export default class RestFullController {
             try {
                 await validator.validate(body);
             } catch (error) {
-                const {errors: errs, fields} = error;
-
+                const {errors: errs} = error;
                 if (errs?.length) {
                     errors = errors.concat(errs);
                 } else {
