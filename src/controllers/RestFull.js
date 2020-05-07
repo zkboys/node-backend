@@ -263,13 +263,13 @@ export default class RestFullController {
         for (const [field, options] of Object.entries(attributes)) {
             if (!ignoreFields.includes(field)) {
                 const {unique, type, comment, rules, allowNull} = options;
-                const label = comment || field;
+                const label = (comment || field).split(' ')[0];
                 const value = body[field];
                 const id = body.id;
 
                 // 存在rules 校验 配置，使用 https://github.com/yiminghe/async-validator 和ant design 使用的同一个校验库，可做前后端同构
                 if (rules?.length) {
-                    if(!descriptor) descriptor = {};
+                    if (!descriptor) descriptor = {};
                     descriptor[field] = rules;
                 }
 
@@ -298,7 +298,7 @@ export default class RestFullController {
         }
 
         // 存在rules相关校验
-        if(descriptor) {
+        if (descriptor) {
             const validator = new asyncValidator(descriptor);
 
             try {

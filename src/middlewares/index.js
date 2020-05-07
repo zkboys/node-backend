@@ -28,7 +28,7 @@ function fail(message, code = -1, data = null) {
     this.response.status = 400;
     this.body = {
         code,
-        message: 'message' in firstMessage ? firstMessage.message : firstMessage,
+        message: (typeof firstMessage === 'object' && 'message' in firstMessage) ? firstMessage.message : firstMessage,
         messages,
         data,
     };

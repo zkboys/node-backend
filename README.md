@@ -71,7 +71,7 @@ module.exports = {
         account: {
             type: STRING(50),
             allowNull: false,
-            comment: '账号',
+            comment: '账号 必填', // 空格隔开，第一部分为label 其他未任意说明
             
             rules: [], // 校验规则 使用 https://github.com/yiminghe/async-validator
         },

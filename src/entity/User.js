@@ -17,10 +17,11 @@ export default {
         },
         email: {
             type: STRING(100),
-            comment: '邮箱',
+            comment: '邮箱 不可为空',
+            allowNull: false,
             rules: [
-                {type: 'email', message: '请输入正确的邮箱！'},
-                {required: true, message: '邮箱不可为空！'},
+                {type: 'email', message: '请输入正确的「邮箱」！'},
+                {required: true, message: '「邮箱」不可为空！'},
             ],
         },
         position: {
@@ -41,9 +42,6 @@ export default {
         remark: {
             type: TEXT,
             defaultValue: null,
-            rules: [
-                {required: true, message: '备注不可为空！'},
-            ],
         },
     },
     // forceSync: true,
