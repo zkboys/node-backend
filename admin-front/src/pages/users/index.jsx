@@ -42,7 +42,7 @@ export default class UserCenter extends Component {
         {
             title: '操作', dataIndex: 'operator', width: 100,
             render: (value, record) => {
-                const {id, name} = record;
+                const {id, account} = record;
                 const items = [
                     {
                         label: '编辑',
@@ -52,7 +52,7 @@ export default class UserCenter extends Component {
                         label: '删除',
                         color: 'red',
                         confirm: {
-                            title: `您确定删除"${name}"?`,
+                            title: `您确定删除"${account}"?`,
                             onConfirm: () => this.handleDelete(id),
                         },
                     },
@@ -92,7 +92,7 @@ export default class UserCenter extends Component {
         if (this.state.deleting) return;
 
         this.setState({deleting: true});
-        this.props.ajax.del(`/mock/users/${id}`, null, {successTip: '删除成功！', errorTip: '删除失败！'})
+        this.props.ajax.del(`/users/${id}`, null, {successTip: '删除成功！', errorTip: '删除失败！'})
             .then(() => this.form.submit())
             .finally(() => this.setState({deleting: false}));
     };
@@ -115,7 +115,7 @@ export default class UserCenter extends Component {
             content,
             onOk: () => {
                 this.setState({deleting: true});
-                this.props.ajax.del('/mock/users', {ids: selectedRowKeys}, {successTip: '删除成功！', errorTip: '删除失败！'})
+                this.props.ajax.del('/users', {ids: selectedRowKeys.join(',')}, {successTip: '删除成功！'})
                     .then(() => this.form.submit())
                     .finally(() => this.setState({deleting: false}));
             },
@@ -142,7 +142,11 @@ export default class UserCenter extends Component {
         return (
             <PageContent>
                 <QueryBar>
-                    <Form onFinish={this.handleSubmit} ref={form => this.form = form}>
+                    <Form
+                        name="users"
+                        onFinish={this.handleSubmit}
+                        ref={form => this.form = form}
+                    >
                         <FormRow>
                             <FormElement
                                 {...formProps}

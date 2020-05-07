@@ -59,7 +59,7 @@ export default class HeaderUser extends Component {
 
                 <ModifyPassword
                     visible={this.state.passwordVisible}
-                    onOk={() => this.setState({passwordVisible: false})}
+                    onOk={() => this.setState({passwordVisible: false}, toLogin)}
                     onCancel={() => this.setState({passwordVisible: false})}
                 />
             </div>

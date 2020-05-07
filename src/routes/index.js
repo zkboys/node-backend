@@ -55,12 +55,14 @@ function getEntityModel(ctx, next) {
 
 export const api = apiRouter
     // 通用 restful api
-    .get('/:model', getEntityModel, RestFull.get) // 查询全部 或分页查询
-    .get('/:model/:id', getEntityModel, RestFull.getById) // 查询详情
-    .post('/:model', getEntityModel, RestFull.post) // 添加
-    .put('/:model', getEntityModel, RestFull.put) // 修改
-    .del('/:model/:id', getEntityModel, RestFull.del) // 根据id删除
-    .del('/:model', getEntityModel, RestFull.batchDel) // 根据ids批量删除
+    .get('/:model', getEntityModel, RestFull.findAll)     // 查询全部 或分页查询
+    .get('/one/:model', getEntityModel, RestFull.findOne)    // 根据条件查询详情
+    .get('/:model/:id', getEntityModel, RestFull.findById)   // 根据id查询详情
+    .post('/:model', getEntityModel, RestFull.save)         // 添加
+    .put('/:model', getEntityModel, RestFull.update)           // 修改
+    .del('/:model/:id', getEntityModel, RestFull.deleteById)       // 根据id删除
+    .del('/:model', getEntityModel, RestFull.deleteByIds)      // 根据ids批量删除
+
     .post('/upload', Util.upload)
     .post('*', ctx => (ctx.status = 404))
     .put('*', ctx => (ctx.status = 404))

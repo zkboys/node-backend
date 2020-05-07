@@ -36,7 +36,6 @@ const entities = loadFile({
             TemplateModel.sync({force: true});
         }
 
-
         return TemplateModel;
     },
 });
@@ -80,12 +79,6 @@ isDev && sequelize.sync().then(async () => {
 
     const users = await User.findAll();
     if (!users.length) {
-        // admin / 111
-        // User.create({
-        //     account: 'admin',
-        //     password: '$2a$08$RE0ux8KuSSlrfz8QaxQj4OwKIxoZD.9.WBOMYFjP6spz4sZD7uTDO',
-        //     roleId: role.id,
-        // });
         await role.createUser({
             account: 'admin',
             password: '$2a$08$RE0ux8KuSSlrfz8QaxQj4OwKIxoZD.9.WBOMYFjP6spz4sZD7uTDO',

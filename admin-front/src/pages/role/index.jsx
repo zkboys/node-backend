@@ -118,20 +118,23 @@ export default class UserCenter extends Component {
             .finally(() => this.setState({loadingRoleMenu: false}));
     };
 
-    handleSaveRoleMenu = () => {
+    handleSaveRoleMenu = async () => {
         const {selectedKeys, selectedRoleId, oldRoleMenuIds} = this.state;
 
         // 先删除原先的数据
-        this.setState({loading: true});
-        this.props.ajax.del('/roleMenus', {ids: oldRoleMenuIds.join(',')})
-            .then(() => {
-                // 保存新数据
-                const params = selectedKeys.map(menuId => ({roleId: selectedRoleId, menuId}));
+        if (oldRoleMenuIds?.length) {
+            this.setState({loading: true});
+            await this.props.ajax
+                .del('/roleMenus', {ids: oldRoleMenuIds.join(',')})
+                .finally(() => this.setState({loading: false}));
+        }
 
-                this.setState({loading: true});
-                this.props.ajax.post('/roleMenus', params, {successTip: '保存角色权限成功！'})
-                    .finally(() => this.setState({loading: false}));
-            })
+        // 保存新数据
+        const params = selectedKeys.map(menuId => ({roleId: selectedRoleId, menuId}));
+
+        this.setState({loading: true});
+        await this.props.ajax
+            .post('/roleMenus', params, {successTip: '保存角色权限成功！'})
             .finally(() => this.setState({loading: false}));
     };
 

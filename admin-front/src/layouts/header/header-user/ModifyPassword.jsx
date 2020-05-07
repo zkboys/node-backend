@@ -22,9 +22,8 @@ export default class ModifyPassword extends Component {
         if (this.state.loading) return;
         const {onOk} = this.props;
 
-        console.log(values);
         this.setState({loading: true});
-        this.props.ajax.post(`/users/${values.id}/password`, values)
+        this.props.ajax.post(`/changePassword`, values)
             .then(() => {
                 if (onOk) onOk();
             })

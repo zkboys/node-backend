@@ -6,7 +6,7 @@ const inflect = I();
 // 通用的rest full 接口
 export default class RestFullController {
     // 获取列表
-    static async get(ctx) {
+    static async findAll(ctx) {
         const attributes = ctx.$entityModel.tableAttributes;
         const {pageNum, pageSize, ...others} = ctx.query;
 
@@ -19,19 +19,21 @@ export default class RestFullController {
 
         // 拼接查询条件
         for (let [key, value] of Object.entries(others)) {
-            if (!allFields.includes(key)) {
 
+            // 数据库中不含有查询字段
+            if (!allFields.includes(key)) {
                 // return ctx.fail(`查询条件字段：「${key}」无对应数据库字段！`)
                 continue;
             }
 
-
             // 也许是id 精确查询
             if (key.endsWith('Id')) {
+                // 如果不转换，多对多 关联查询，拼接的sql有问题，可能是 sequelize 框架底层的问题
                 key = inflect.underscore(key);
                 conditions.push({[key]: value});
             } else {
                 // 模糊查询
+                key = inflect.underscore(key);
                 conditions.push({[key]: {$like: `%${value.trim()}%`}});
             }
         }
@@ -50,79 +52,104 @@ export default class RestFullController {
         if (pageNum && pageSize) {
             options.offset = (pageNum - 1) * pageSize;
             options.limit = +pageSize;
-            let {count, rows} = await ctx.$entityModel.findAndCountAll(options);
 
+            let {count, rows} = await ctx.$entityModel.findAndCountAll(options);
             rows = RestFullController.filter(rows, ctx.$entityModel, include);
 
             return ctx.success({total: count, list: rows});
         } else {
             let rows = await ctx.$entityModel.findAll(options);
-
             rows = RestFullController.filter(rows, ctx.$entityModel, include);
 
             ctx.success(rows);
         }
     }
 
-    //  获取详情
-    static async getById(ctx) {
+    // 获取详情
+    static async findById(ctx) {
         const {id} = ctx.params;
 
         // 关联查询
         const include = RestFullController.getInclude(ctx);
 
         let result = await ctx.$entityModel.findOne({where: {id}, include});
+        result = RestFullController.filter(result, ctx.$entityModel, include);
 
+        ctx.success(result);
+    }
+
+    // 根据条件 获取详情
+    static async findOne(ctx) {
+        const attributes = ctx.$entityModel.tableAttributes;
+        // 查询条件
+        const conditions = [];
+        // 关联查询
+        const include = RestFullController.getInclude(ctx);
+        const allFields = Object.keys(attributes);
+
+        // 拼接查询条件
+        for (let [key, value] of Object.entries(ctx.query)) {
+            if (!allFields.includes(key)) {
+                // return ctx.fail(`查询条件字段：「${key}」无对应数据库字段！`)
+                continue;
+            }
+
+            key = inflect.underscore(key);
+
+            conditions.push({[key]: value});
+        }
+
+        const options = {
+            where: {
+                $and: [conditions],
+            },
+            include,
+        };
+
+        let result = await ctx.$entityModel.findOne(options);
         result = RestFullController.filter(result, ctx.$entityModel, include);
 
         ctx.success(result);
     }
 
     // 新增
-    static async post(ctx) {
+    static async save(ctx) {
         const body = ctx.request.body;
+        // 可能是批量添加
+        const bodyArr = Array.isArray(body) ? body : [body];
 
-        // 有可能是批量添加
-        if (Array.isArray(body)) {
-            for (const data of body) {
-                const errors = await RestFullController.validateBody(ctx, data);
-                if (errors) return ctx.fail(errors);
-            }
-
-            const result = await ctx.$entityModel.bulkCreate(body);
-            return ctx.success(result);
+        for (const data of bodyArr) {
+            const errors = await RestFullController.validateBody(ctx, data);
+            if (errors) return ctx.fail(errors);
         }
 
-        const errors = await RestFullController.validateBody(ctx);
-        if (errors) return ctx.fail(errors);
-
-        const result = await ctx.$entityModel.create(body);
-        ctx.success(result);
+        const result = await ctx.$entityModel.bulkCreate(bodyArr);
+        return ctx.success(result);
     }
 
     // 修改
-    static async put(ctx) {
+    static async update(ctx) {
         const body = ctx.request.body;
         const errors = await RestFullController.validateBody(ctx);
         if (errors) return ctx.fail(errors);
 
         const result = await ctx.$entityModel.update(body, {where: {id: body.id}});
-        ctx.success(result);
+        return ctx.success(result);
     }
 
     // 删除
-    static async del(ctx) {
+    static async deleteById(ctx) {
         const {id} = ctx.params;
 
         await ctx.$entityModel.destroy({where: {id}});
 
-        ctx.success();
+        return ctx.success();
     }
 
     // 批量删除删除
-    static async batchDel(ctx) {
+    static async deleteByIds(ctx) {
         const {ids} = ctx.query;
-        if (!ids) return ctx.fail('请传递需要删除的ids，以英文逗号分隔');
+        if (!ids) return ctx.fail('请传递需要删除的「ids」，以英文逗号分隔');
 
         const idArr = ids.split(',');
 
@@ -197,11 +224,12 @@ export default class RestFullController {
             if (include?.length) {
                 include.forEach(it => {
                     const {model, _modelName} = it;
-                    const includeModel = jsonItem[_modelName];
-                    if (includeModel) {
-                        const {excludeFields: efs} = model.entityConfig;
-                        jsonItem[_modelName] = Array.isArray(includeModel) ? includeModel.map(item => _.omit(item, efs)) : _.omit(includeModel, efs);
-                    }
+                    const includeResult = jsonItem[_modelName];
+
+                    if (!includeResult) return;
+
+                    const {excludeFields: efs} = model.entityConfig;
+                    jsonItem[_modelName] = Array.isArray(includeResult) ? includeResult.map(item => _.omit(item, efs)) : _.omit(includeResult, efs);
                 });
             }
 

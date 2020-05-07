@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Icon} from 'src/library/components';
 import config from 'src/commons/config-hoc';
-import localMenus from '../../menus';
 import {convertToTree} from 'src/library/utils/tree-utils';
 import {Table} from 'src/library/components';
 import './style.less';

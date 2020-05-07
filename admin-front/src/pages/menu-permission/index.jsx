@@ -3,7 +3,6 @@ import {Button} from 'antd';
 import {Icon} from 'src/library/components';
 import config from 'src/commons/config-hoc';
 import PageContent from 'src/layouts/page-content';
-import localMenus from '../../menus';
 import {convertToTree} from 'src/library/utils/tree-utils';
 import {Table, ToolBar, Operator} from 'src/library/components';
 import EditModal from './EditModal';

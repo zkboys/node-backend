@@ -41,7 +41,7 @@ export default class extends Component {
         this.setState({loading: true, message: ''});
         this.props.ajax.post('/login', params, {errorTip: false})
             .then(res => {
-                const {id, name} = res;
+                const {id, account: name} = res;
                 setLoginUser({
                     id,
                     name,

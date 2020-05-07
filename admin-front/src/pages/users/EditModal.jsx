@@ -46,6 +46,11 @@ export default class EditModal extends Component {
         this.props.ajax.get(`/users/${id}`)
             .then(res => {
                 this.setState({data: res});
+                // 不处理null，下拉框不显示placeholder
+                Object.entries(res).forEach(([key, value]) => {
+                    if (value === null) res[key] = undefined;
+                });
+
                 this.form.setFieldsValue(res);
             })
             .finally(() => this.setState({loading: false}));
@@ -58,8 +63,8 @@ export default class EditModal extends Component {
         const ajaxMethod = isEdit ? this.props.ajax.put : this.props.ajax.post;
         const successTip = isEdit ? '修改成功！' : '添加成功！';
 
-        if(!values.password)
-        this.setState({loading: true});
+        if (!values.password)
+            this.setState({loading: true});
         ajaxMethod('/users', values, {successTip})
             .then(() => {
                 const {onOk} = this.props;

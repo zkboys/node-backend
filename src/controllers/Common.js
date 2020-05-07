@@ -119,6 +119,7 @@ export default class UserController {
 
         await ctx.$entity.User.update({password: newPassword}, {where: {id}});
 
+        // 修改密码成功之后，直接退出登录了
         this.logout(ctx);
     }
 
