@@ -11,11 +11,9 @@ export default {
         },
         roleId: {
             type: UUID,
-            allowNull: false,
         },
         menuId: {
             type: UUID,
-            allowNull: false,
         },
     },
     belongsTo: ['Menu', 'Role'],
