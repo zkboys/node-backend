@@ -22,19 +22,15 @@ yarn build
 
 # 启动
 yarn pro
-```
 
+# 使用pm2
+pm2 start ecosystem.config.js
+```
 
 ## 命令行变量
 NODE_ENV
 PORT
 JWT_SECRET
-
-
-## TODO
-- [ ] API文档
-- [x] jwt退出登录问题
-- [ ] 静态文件的缓存策略
 
 ## entity配置
 
@@ -65,9 +61,28 @@ entity配置说明：
 ```javascript
 module.exports = {
     attributes: { // 参考 sequelize
-        field: {
+        id: {
+            type: UUID,
+            allowNull: false,
+            primaryKey: true,
+            unique: true,
+            defaultValue: UUIDV4,
+        },
+        account: {
+            type: STRING(50),
+            allowNull: false,
+            comment: '账号',
+            
             rules: [], // 校验规则
-        }
+        },
+        password: {
+            type: STRING(100),
+            allowNull: false,
+            comment: '密码',
+            set(val) {
+                this.setDataValue('password', passwordUtil.encode(val));
+            },
+        },
     },
     options: {}, // 参考 sequelize
     forceSync: true, // 开发时，强制同步数据库
@@ -80,3 +95,8 @@ module.exports = {
     belongsToMany: {model: 'Menu', through: 'RoleMenu'}, // ['', {model: '', through: ''}]  {model: '', through: ''}, 
 }
 ```
+
+## TODO
+- [ ] API文档
+- [x] jwt退出登录问题
+- [ ] 静态文件的缓存策略

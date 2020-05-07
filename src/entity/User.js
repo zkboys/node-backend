@@ -11,9 +11,8 @@ export default {
             defaultValue: UUIDV4,
         },
         account: {
-            type: STRING,
+            type: STRING(50),
             allowNull: false,
-            length: 50,
             comment: '账号',
         },
         position: {
@@ -24,9 +23,8 @@ export default {
             type: UUID,
         },
         password: {
-            type: STRING,
+            type: STRING(100),
             allowNull: false,
-            length: 100,
             comment: '密码',
             set(val) {
                 this.setDataValue('password', passwordUtil.encode(val));

@@ -1,7 +1,6 @@
 import _ from 'lodash';
-import I from 'i';
+import inflection from 'inflection';
 
-const inflect = I();
 
 // 通用的rest full 接口
 export default class RestFullController {
@@ -29,11 +28,11 @@ export default class RestFullController {
             // 也许是id 精确查询
             if (key.endsWith('Id')) {
                 // 如果不转换，多对多 关联查询，拼接的sql有问题，可能是 sequelize 框架底层的问题
-                key = inflect.underscore(key);
+                key = inflection.underscore(key);
                 conditions.push({[key]: value});
             } else {
                 // 模糊查询
-                key = inflect.underscore(key);
+                key = inflection.underscore(key);
                 conditions.push({[key]: {$like: `%${value.trim()}%`}});
             }
         }
@@ -94,7 +93,7 @@ export default class RestFullController {
                 continue;
             }
 
-            key = inflect.underscore(key);
+            key = inflection.underscore(key);
 
             conditions.push({[key]: value});
         }
@@ -188,12 +187,12 @@ export default class RestFullController {
 
                 value.forEach(entityName => {
                     if (typeof entityName === 'string') {
-                        const _modelName = keys.includes(keyWord) ? inflect.pluralize(entityName) : entityName;
+                        const _modelName = keys.includes(keyWord) ? inflection.pluralize(entityName) : entityName;
 
                         includeArr.push({model: ctx.$entity[entityName], _modelName});
                     } else {
                         const {model, through} = entityName;
-                        const _modelName = keys.includes(keyWord) ? inflect.pluralize(model) : model;
+                        const _modelName = keys.includes(keyWord) ? inflection.pluralize(model) : model;
 
                         includeArr.push({
                             model: ctx.$entity[model],

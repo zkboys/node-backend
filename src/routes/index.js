@@ -1,7 +1,7 @@
 const Router = require('koa-router');
 const fs = require('fs');
 const path = require('path');
-const inflect = require('i')();
+const inflection = require('inflection');
 
 const apiRouter = new Router({prefix: '/api'});
 const pageRouter = new Router({prefix: ''});
@@ -44,7 +44,7 @@ export function Del(path) {
 
 function getEntityModel(ctx, next) {
     const {model} = ctx.params;
-    const entityName = inflect.camelize(inflect.singularize(model));
+    const entityName = inflection.camelize(inflection.singularize(model));
 
     const entity = ctx.$entity[entityName];
     if (!entity) return ctx.fail(`没有${model}对应的entity${entityName}!`);
