@@ -11,7 +11,7 @@ export default class RestFullController {
         // 查询条件
         const {conditions /*, errors */} = RestFullController.getConditions(ctx);
 
-        // if (errors) return ctx.fail(errors);
+        // if (errors) ctx.fail(errors);
 
         // 关联查询
         const include = RestFullController.getInclude(ctx);
@@ -34,7 +34,10 @@ export default class RestFullController {
             let {count, rows} = await ctx.$entityModel.findAndCountAll(options);
             rows = RestFullController.filter(rows, ctx.$entityModel, include);
 
-            return ctx.success({total: count, list: rows});
+            return ctx.success({
+                total: count,
+                list: rows,
+            });
         } else {
             let rows = await ctx.$entityModel.findAll(options);
             rows = RestFullController.filter(rows, ctx.$entityModel, include);
@@ -50,7 +53,10 @@ export default class RestFullController {
         // 关联查询
         const include = RestFullController.getInclude(ctx);
 
-        let result = await ctx.$entityModel.findOne({where: {id}, include});
+        let result = await ctx.$entityModel.findOne({
+            where: {id},
+            include,
+        });
         result = RestFullController.filter(result, ctx.$entityModel, include);
 
         ctx.success(result);
@@ -68,7 +74,7 @@ export default class RestFullController {
         // 拼接查询条件，都是精确查询
         for (let [key, value] of Object.entries(ctx.query)) {
             if (!allFields.includes(key)) {
-                // return ctx.fail(`查询条件字段：「${key}」无对应数据库字段！`)
+                // ctx.fail(`查询条件字段：「${key}」无对应数据库字段！`)
                 continue;
             }
 
@@ -98,7 +104,7 @@ export default class RestFullController {
 
         for (const data of bodyArr) {
             const errors = await RestFullController.validateBody(ctx, data);
-            if (errors) return ctx.fail(errors);
+            if (errors) ctx.fail(errors);
         }
 
         const result = await ctx.$entityModel.bulkCreate(bodyArr);
@@ -109,11 +115,11 @@ export default class RestFullController {
     static async update(ctx) {
         const body = ctx.request.body;
 
-        if (!body) return ctx.fail('请传递需要更新的数据');
-        if (!body.id) return ctx.fail('需要更新的数据，必须含有「id」');
+        if (!body) ctx.fail('请传递需要更新的数据');
+        if (!body.id) ctx.fail('需要更新的数据，必须含有「id」');
 
         const errors = await RestFullController.validateBody(ctx);
-        if (errors) return ctx.fail(errors);
+        if (errors) ctx.fail(errors);
 
         const result = await ctx.$entityModel.update(body, {where: {id: body.id}});
         return ctx.success(result);
@@ -131,7 +137,7 @@ export default class RestFullController {
     // 批量删除删除
     static async deleteByIds(ctx) {
         const {ids} = ctx.query;
-        if (!ids) return ctx.fail('请传递需要删除的「ids」，以英文逗号分隔');
+        if (!ids) ctx.fail('请传递需要删除的「ids」，以英文逗号分隔');
 
         const idArr = ids.split(',');
 
@@ -160,7 +166,10 @@ export default class RestFullController {
                 let opt = queryField;
 
                 if (typeof queryField === 'string') {
-                    opt = {field: queryField, like: true};
+                    opt = {
+                        field: queryField,
+                        like: true,
+                    };
                 }
                 return opt;
             });
@@ -186,10 +195,18 @@ export default class RestFullController {
             if (queryFields === true) {
                 // 也许是id 精确查询
                 if (key.endsWith('Id')) {
-                    addToConditions({field: key, value, like: false});
+                    addToConditions({
+                        field: key,
+                        value,
+                        like: false,
+                    });
                 } else {
                     // 模糊查询
-                    addToConditions({field: key, value, like: true});
+                    addToConditions({
+                        field: key,
+                        value,
+                        like: true,
+                    });
                 }
             } else if (Array.isArray(queryFields)) {
                 // 有查询条件配置， 以查询条件配置为主
@@ -198,7 +215,11 @@ export default class RestFullController {
                 if (filedOpt) {
                     const {like = true} = filedOpt;
 
-                    addToConditions({field: key, value, like});
+                    addToConditions({
+                        field: key,
+                        value,
+                        like,
+                    });
                 } else {
                     errors.push({[key]: `查询条件字段：「${key}」不存在「queryFields」配置中！`});
                 }
@@ -227,7 +248,12 @@ export default class RestFullController {
         const includeArr = [];
         const keys = ['belongsToMany', 'hasMany'];
 
-        Object.entries({hasOne, hasMany, belongsTo, belongsToMany})
+        Object.entries({
+            hasOne,
+            hasMany,
+            belongsTo,
+            belongsToMany,
+        })
             .forEach(([keyWord, value]) => {
                 if (!value) return;
                 if (!Array.isArray(value)) value = [value];
@@ -236,7 +262,10 @@ export default class RestFullController {
                     if (typeof entityName === 'string') {
                         const _modelName = keys.includes(keyWord) ? inflection.pluralize(entityName) : entityName;
 
-                        includeArr.push({model: ctx.$entity[entityName], _modelName});
+                        includeArr.push({
+                            model: ctx.$entity[entityName],
+                            _modelName,
+                        });
                     } else {
                         const {model, through} = entityName;
                         const _modelName = keys.includes(keyWord) ? inflection.pluralize(model) : model;

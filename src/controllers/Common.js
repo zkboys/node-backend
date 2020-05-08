@@ -22,13 +22,16 @@ export default class UserController {
         const account = ctx.checkBody('account').label('用户名').notEmpty().len(4, 20).value;
         const password = ctx.checkBody('password').label('密码').notEmpty().len(3, 20).value;
 
-        if (ctx.errors) return ctx.fail(ctx.errors);
+        if (ctx.errors) ctx.fail(ctx.errors);
 
         const user = await ctx.$entity.User.findOne({where: {account}});
 
-        if (user) return ctx.fail('账号已被使用');
+        if (user) ctx.fail('账号已被使用');
 
-        const createdUser = await ctx.$entity.User.create({account, password: password});
+        const createdUser = await ctx.$entity.User.create({
+            account,
+            password: password,
+        });
 
         ctx.success(createdUser);
     }
@@ -39,7 +42,7 @@ export default class UserController {
         const account = ctx.checkBody('account').label('用户名').notEmpty().value;
         const password = ctx.checkBody('password').label('密码').notEmpty().value;
 
-        if (ctx.errors) return ctx.fail(ctx.errors);
+        if (ctx.errors) ctx.fail(ctx.errors);
 
         //  图片验证码 开发环境下不进行校验
         if (
@@ -53,7 +56,7 @@ export default class UserController {
             await redis.del(`captchaId${captchaId}`);
 
             if (redisCaptcha?.toLowerCase() !== captcha?.toLowerCase()) {
-                return ctx.fail('验证码不正确');
+                ctx.fail('验证码不正确');
             }
         }
 
@@ -63,7 +66,7 @@ export default class UserController {
         const verifyPassword = user && passwordUtil.compare(password, user.password);
 
         if (!verifyPassword || !user) {
-            return ctx.fail(errorMessage);
+            ctx.fail(errorMessage);
         }
 
         // expiresIn 单位 秒
@@ -104,18 +107,18 @@ export default class UserController {
         const id = ctx.checkBody('id').label('用户id').notEmpty().value;
         const oldPassword = ctx.checkBody('oldPassword').label('旧密码').notEmpty().value;
         const newPassword = ctx.checkBody('newPassword').label('新密码').notEmpty().value;
-        if (ctx.errors) return ctx.fail(ctx.errors);
+        if (ctx.errors) ctx.fail(ctx.errors);
 
         const user = await ctx.$entity.User.findOne({where: {id}});
-        if (!user) return ctx.fail('用户不存在');
+        if (!user) ctx.fail('用户不存在');
 
         //  验证旧密码
         const verifyPassword = passwordUtil.compare(oldPassword, user.password);
-        if (!verifyPassword) return ctx.fail('原密码不正确！');
+        if (!verifyPassword) ctx.fail('原密码不正确！');
 
         //  新密码不能与旧密码相同
         const isSamePassword = passwordUtil.compare(newPassword, user.password);
-        if (isSamePassword) return ctx.fail('新旧密码不能相同，请重新设置！');
+        if (isSamePassword) ctx.fail('新旧密码不能相同，请重新设置！');
 
         await ctx.$entity.User.update({password: newPassword}, {where: {id}});
 
@@ -140,6 +143,9 @@ export default class UserController {
 
         redis.set(`captchaId${captchaId}`, text);
 
-        ctx.success({captcha: data, captchaId});
+        ctx.success({
+            captcha: data,
+            captchaId,
+        });
     }
 };

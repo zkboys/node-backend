@@ -26,20 +26,20 @@ function method(methodName = 'get') {
     };
 }
 
-export function Get(path) {
-    return method('get')(path);
+export function Get(...args) {
+    return method('get')(...args);
 }
 
-export function Post(path) {
-    return method('post')(path);
+export function Post(...args) {
+    return method('post')(...args);
 }
 
-export function Put(path) {
-    return method('put')(path);
+export function Put(...args) {
+    return method('put')(...args);
 }
 
-export function Del(path) {
-    return method('del')(path);
+export function Del(...args) {
+    return method('del')(...args);
 }
 
 function getEntityModel(ctx, next) {

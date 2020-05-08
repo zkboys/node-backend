@@ -15,13 +15,14 @@ function fail(message, code = -1, data = null) {
     const messages = getMessages(message, code);
     const firstMessage = messages[0];
 
-    this.response.status = 400;
-    this.body = {
+    // 使用throw，执行到throw时，此次请求就结束了，不必使用 return ctx.fail方式
+    this.throw(400, {
+        isCtxFail: true,
         code,
         message: (typeof firstMessage === 'object' && 'message' in firstMessage) ? firstMessage.message : firstMessage,
         messages,
         data,
-    };
+    });
 }
 
 function getMessages(msg, code) {

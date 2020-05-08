@@ -6,6 +6,14 @@ module.exports = (app, options) => async function (ctx, next) {
     try {
         await next();
     } catch (err) {
+        if (err.isCtxFail) {
+            Reflect.deleteProperty(err, 'isCtxFail');
+
+            ctx.status = err.status;
+            ctx.body = err;
+            return;
+        }
+
         app.emit('err', err, this);
         const status = err.status || 500;
 

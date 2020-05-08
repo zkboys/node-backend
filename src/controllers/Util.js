@@ -29,12 +29,10 @@ module.exports = class UtilController {
 
         if (uploadConf.types.indexOf(suffix) === -1) {
             ctx.fail(`上传失败，仅支持 ${uploadConf.types.join('/').replace(/\./g, '')} 文件类型`);
-            return;
         }
 
         if (file.size > uploadConf.size) {
             ctx.fail('上传失败，超过限定大小');
-            return;
         }
 
         const reader = fs.createReadStream(file.path);
