@@ -7,7 +7,7 @@ import uuid from 'uuid';
 import {Get, Post} from '../routes';
 import {redis} from '../util';
 import passwordUtil from '../util/password-util';
-import userEntity from '../entity/User';
+import userEntity from '../entities/User';
 
 const jwtSecret = config.get('jwt.secret');
 const jwtExpire = config.get('jwt.expire');

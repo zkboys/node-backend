@@ -21,7 +21,7 @@ function getErrorTip({error, errorTip}) {
 
         if (status === 404) return '您访问的资源不存在';
 
-        if (status >= 500) return serverErrorTip;
+        if (status >= 500) return message || serverErrorTip;
 
         // 后端自定义信息
         if (message && typeof message === 'string') return message;

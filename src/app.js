@@ -39,11 +39,14 @@ render(app, {
     debug: false,
 });
 
+// 统一加载自定义中间件
+Object.values(middleware).forEach(fn => {
+    app.use(fn(app));
+});
+
 app
-    .use(middleware.loadEntity) // 加载 entity到 ctx.$entity
-    .use(middleware.util)
-    .use(middleware.ipFilter)
     .use(favicon(path.join(__dirname, '/public/images/favicon.ico')))
+    .use(serveStatic('/dist/static', '../dist/static', {maxAge: 60 * 60 * 24 * 30}))
     .use(serveStatic('/dist', '../dist'))
     .use(serveStatic('/public', './public'))
     .use(serveStatic('/upload', path.resolve(__dirname, 'config', uploadConf.dir)))
@@ -52,7 +55,6 @@ app
         credentials: true,
         maxAge: 2592000,
     }))
-    .use(middleware.getToken)
     .use(koaJwt({
         // 获取token的优先级 getToken > cookie > Authorization header
         secret: jwtSecret,
@@ -91,12 +93,11 @@ if (!module.parent) {
     console.log(`server started at http://${host}:${port} http://${ip}:${port}`);
 }
 
-function serveStatic(prefix, filePath) {
+function serveStatic(prefix, filePath, options = {}) {
     return staticCache(path.resolve(__dirname, filePath), {
         prefix: prefix,
         gzip: true,
         dynamic: true,
-        // FIXME 静态文件缓存怎么设置
-        // maxAge: 60 * 60 * 24 * 30,
+        ...options,
     });
 }

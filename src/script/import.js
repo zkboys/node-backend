@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import xlsx from 'node-xlsx';
-import {App, AppRelation, Business, BusinessApp, BusinessRelation} from '../entity';
+import {App, AppRelation, Business, BusinessApp, BusinessRelation} from '../entities';
 
 // excel 列对应key关系
 const keys = [

@@ -1,6 +1,6 @@
 // module.exports = require('ioredis');
 
-const {RedisStorage} = require('../entity');
+const {RedisStorage} = require('../entities');
 
 // Redis 实现，使用数据库，如果想使用真实的Redis，直接导出 ioredis
 module.exports = class Redis {
