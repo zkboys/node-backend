@@ -56,7 +56,8 @@ pm2 start ecosystem.config.js
 所有的GET方法，如果实体有多表关联关系，将进行关联查询，传递`include=false`参数之后，将禁用关联查询；
 
 
-### entity配置说明：
+### entity文件说明：
+entity文件命名规范：大写驼峰式命名，比如：`User.js` `RoleMenu.js`
 
 ```javascript
 module.exports = {
@@ -88,6 +89,7 @@ module.exports = {
     forceSync: true, // 开发时，强制同步数据库
     excludeFields: [], // 不给前端返回的字段
     excludeValidateFields: [], // 不参与后端校验的字段
+    queryFields: ['account', {field: 'position', like: false}], // queryFields: [] 指定查询条件字段， like默认为true，进行模糊查询; queryFields: true 所有字段参与查询条件，默认为true
     // 实体间依赖关系 ，值为对应的模块名，支持数据，添加多个关联关系
     hasOne: 'User',
     hasMany: ['User', 'Role'],

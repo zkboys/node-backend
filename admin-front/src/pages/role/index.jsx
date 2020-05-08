@@ -100,7 +100,7 @@ export default class UserCenter extends Component {
         const {id} = record;
         this.setState({selectedRoleId: id, selectedKeys: []});
         // 根据id 获取 role对应的菜单权限
-        const params = {roleId: id};
+        const params = {roleId: id, include: false};
         this.setState({loadingRoleMenu: true});
         this.props.ajax.get('/roleMenus', params)
             .then(res => {

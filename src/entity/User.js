@@ -51,4 +51,6 @@ export default {
     excludeFields: ['password'],
     // 添加 修改时，不参与后端校验字段
     excludeValidateFields: ['password'],
+    // 查询字段
+    queryFields: ['account', {field: 'position', like: false}],
 };

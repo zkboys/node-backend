@@ -1,41 +1,20 @@
 import _ from 'lodash';
 import inflection from 'inflection';
-import asyncValidator from 'async-validator';
+import AsyncValidator from 'async-validator';
 
 // 通用的rest full 接口
 export default class RestFullController {
     // 获取列表
     static async findAll(ctx) {
-        const attributes = ctx.$entityModel.tableAttributes;
-        const {pageNum, pageSize, ...others} = ctx.query;
+        const {pageNum, pageSize} = ctx.query;
 
         // 查询条件
-        const conditions = [];
+        const {conditions /*, errors */} = RestFullController.getConditions(ctx);
+
+        // if (errors) return ctx.fail(errors);
 
         // 关联查询
         const include = RestFullController.getInclude(ctx);
-        const allFields = Object.keys(attributes);
-
-        // 拼接查询条件
-        for (let [key, value] of Object.entries(others)) {
-
-            // 数据库中不含有查询字段
-            if (!allFields.includes(key)) {
-                // return ctx.fail(`查询条件字段：「${key}」无对应数据库字段！`)
-                continue;
-            }
-
-            // 也许是id 精确查询
-            if (key.endsWith('Id')) {
-                // 如果不转换，多对多 关联查询，拼接的sql有问题，可能是 sequelize 框架底层的问题
-                key = inflection.underscore(key);
-                conditions.push({[key]: value});
-            } else {
-                // 模糊查询
-                key = inflection.underscore(key);
-                conditions.push({[key]: {$like: `%${value.trim()}%`}});
-            }
-        }
 
         const options = {
             where: {
@@ -86,7 +65,7 @@ export default class RestFullController {
         const include = RestFullController.getInclude(ctx);
         const allFields = Object.keys(attributes);
 
-        // 拼接查询条件
+        // 拼接查询条件，都是精确查询
         for (let [key, value] of Object.entries(ctx.query)) {
             if (!allFields.includes(key)) {
                 // return ctx.fail(`查询条件字段：「${key}」无对应数据库字段！`)
@@ -162,22 +141,90 @@ export default class RestFullController {
     }
 
     /**
+     * 获取查询条件
+     * @param ctx
+     * @returns {{conditions: ([]), errors: ([])}}
+     */
+    static getConditions(ctx) {
+        const {pageNum, pageSize, include, ...others} = ctx.query;
+        const {tableAttributes: attributes, entityConfig: {queryFields = true}} = ctx.$entityModel;
+        const allFields = Object.keys(attributes);
+
+        const conditions = [];
+        const errors = [];
+
+        // string 的配置，统一转换为对象，默认模糊查询
+        let qfs;
+        if (Array.isArray(queryFields)) {
+            qfs = queryFields.map(queryField => {
+                let opt = queryField;
+
+                if (typeof queryField === 'string') {
+                    opt = {field: queryField, like: true};
+                }
+                return opt;
+            });
+        }
+
+        const addToConditions = (options) => {
+            const {field, value, like} = options;
+
+            // 如果不转换，多对多 关联查询，拼接的sql有问题，可能是 sequelize 框架底层的问题
+            const underField = inflection.underscore(field);
+
+            conditions.push({[underField]: like ? {$like: `%${value.trim()}%`} : value});
+        };
+
+        for (const [key, value] of Object.entries(others)) {
+            // 数据库中不含有查询字段 直接忽略查询条件
+            if (!allFields.includes(key)) {
+                errors.push({[key]: `查询条件字段：「${key}」无对应数据库字段！`});
+                continue;
+            }
+
+            // 所有字段都参与查询条件
+            if (queryFields === true) {
+                // 也许是id 精确查询
+                if (key.endsWith('Id')) {
+                    addToConditions({field: key, value, like: false});
+                } else {
+                    // 模糊查询
+                    addToConditions({field: key, value, like: true});
+                }
+            } else if (Array.isArray(queryFields)) {
+                // 有查询条件配置， 以查询条件配置为主
+                const filedOpt = qfs.find(item => item.field === key);
+
+                if (filedOpt) {
+                    const {like = true} = filedOpt;
+
+                    addToConditions({field: key, value, like});
+                } else {
+                    errors.push({[key]: `查询条件字段：「${key}」不存在「queryFields」配置中！`});
+                }
+            }
+        }
+
+        return {
+            conditions: conditions?.length ? conditions : undefined,
+            errors: errors?.length ? errors : undefined,
+        };
+    }
+
+    /**
      * 获取关联关系
      * @param ctx
      * @returns {[]}
      */
     static getInclude(ctx) {
-        // 可以通过查询参数，控制是否启用关联查询
+        // 可以通过查询参数，控制是否启用关联查询，默认启用关联查询
         const {include = true} = ctx.query;
-
         if (include !== true && include !== 'true') return undefined;
 
         const {entityConfig} = ctx.$entityModel;
-
         const {hasOne, hasMany, belongsTo, belongsToMany} = entityConfig;
 
         const includeArr = [];
-
         const keys = ['belongsToMany', 'hasMany'];
 
         Object.entries({hasOne, hasMany, belongsTo, belongsToMany})
@@ -202,6 +249,7 @@ export default class RestFullController {
                     }
                 });
             });
+
         return includeArr.length ? includeArr : undefined;
     }
 
@@ -297,7 +345,7 @@ export default class RestFullController {
 
         // 存在rules相关校验
         if (descriptor) {
-            const validator = new asyncValidator(descriptor);
+            const validator = new AsyncValidator(descriptor);
 
             try {
                 await validator.validate(body);
