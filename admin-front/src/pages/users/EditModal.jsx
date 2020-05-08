@@ -93,6 +93,7 @@ export default class EditModal extends Component {
                     onFinish={this.handleSubmit}
                     initialValues={data}
                 >
+
                     {isEdit ? <FormElement {...formProps} type="hidden" name="id"/> : null}
 
                     <FormElement
