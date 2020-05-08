@@ -28,35 +28,35 @@ pm2 start ecosystem.config.js
 ```
 
 ## 命令行变量
-NODE_ENV
-PORT
-JWT_SECRET
+`NODE_ENV`
+`PORT`
+`JWT_SECRET`
 
 ## entity配置
 
-定义entity，自动创建数据库，自动生成restful接口
+定义entity，自动创建数据库（开发），直接提供如下restful接口：
 
 | 方法 | 路由 | 说明 | 示例 |
 |  ----  | ----------- | ------- |  ----  |
 | GET    | /:model     | 查询所有 | /users?pageNum=1&pageSize=10&name=tom |
-| GET    | /one/:model | 查询一条数据 | /one/users?name=tom |
 | GET    | /:model/:id | 根据id查询 | /users/1 | 
-| POST   | /:model     | 添加 | /users | 
+| GET    | /one/:model | 查询一条数据 | /one/users?name=tom |
+| POST   | /:model     | 添加，body支持数组，批量添加 | /users | 
 | PUT    | /:model     | 修改 | /users |
 | DELETE | /:model/:id | 根据id删除一条数据 | /users/1 |
 | DELETE | /:model     | 根据一组ids，删除数据 | /users?ids=1,2,3 |  
 
-`get /:model `说明：
+### 查询所有（`get /:model `）说明：
 
-- 如果传递 `pageNum` `pageSize` 参数，将分页查询，返回`{total, list}`;
-- 除 `pageNum` `pageSize` 参数，其他参数将作为查询条件，如果参数key以 `Id`结尾，将精确查询，否者模糊查询，返回`[{}, {}]`；
+- 如果传递 `pageNum` `pageSize` 参数，将分页查询，返回`{total, list}`，否则查询全部，返回`[{}, {}, ...]`;
+- 除 `pageNum` `pageSize` 参数，其他参数将作为查询条件，如果参数key以 `Id`结尾，将精确查询，否者模糊查询，返回`[{}, {}, ...]`；
 
-`include`参数说明
+### 关联查询`include`参数说明
 
-所有的GET方法，如果实体有多表冠梁关系，将进行关联插叙，传递`include=false`参数之后，将禁用关联查询；
+所有的GET方法，如果实体有多表关联关系，将进行关联查询，传递`include=false`参数之后，将禁用关联查询；
 
 
-entity配置说明：
+### entity配置说明：
 
 ```javascript
 module.exports = {
