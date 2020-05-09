@@ -13,21 +13,3 @@ if (!program.message) {
 }
 
 execSync(`git add . && git commit -m '${program.message}' && git push origin master `, {stdio: [0, 1, 2]});
-// let result = execSync('git add .');
-// console.log(result.toString());
-//
-// result = execSync(`git commit -m '${program.message}'`);
-// console.log(result.toString());
-//
-// console.log('🔥 push...');
-// result = execSync('git push origin master');
-// console.log(result.toString());
-
-//
-// console.log('🔥 push...');
-// exec(`git add . && git commit -m '${program.message}' && git push origin master `, function (error, stdout, stderr) {
-//     if (error) console.error(error);
-//
-//     stdout && console.log(stdout);
-//     stderr && console.log(stderr);
-// });
