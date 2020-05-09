@@ -12,7 +12,9 @@ if (!program.message) {
     return;
 }
 
-execSync('git add .');
+const result = execSync('git add .');
+
+console.log(result);
 
 execSync(`git commit -m '${program.message}'`);
 
