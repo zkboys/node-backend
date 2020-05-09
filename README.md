@@ -98,9 +98,12 @@ module.exports = {
 }
 ```
 ## TODO
-- [ ] API文档
-- [x] jwt退出登录问题
-- [x] 静态文件的缓存策略
-- [ ] 接口数据校验
-- [ ] 国际化
-- [ ] 统一异常处理
+- [x] jwt后端退出登录问题；
+- [x] 静态文件的缓存策略；
+- [x] 国际化 暂不支持，具体项目需要时再添加；
+- [x] 统一异常处理；
+- [ ] swagger文档
+    - [ ] 装饰器方式
+    - [ ] 与async-validate结合，进行前端提交数据校验
+    - [ ] 通用restful接口，统一生成swagger文档，排除被覆盖情况
+    - [ ] 更换ui模板，原生的太丑，太难用 https://github.com/xiaoymin/swagger-bootstrap-ui

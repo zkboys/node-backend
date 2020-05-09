@@ -38,7 +38,7 @@
         const SwaggerUIStandalonePreset = window.SwaggerUIStandalonePreset;
 
         // Begin Swagger UI call region
-        const ui = SwaggerUIBundle({
+        window.ui = SwaggerUIBundle({
             url: '/public/swagger/swagger.json',
             dom_id: '#swagger-ui',
             deepLinking: true,
@@ -50,10 +50,9 @@
                 SwaggerUIBundle.plugins.DownloadUrl,
             ],
             layout: 'StandaloneLayout',
+            filter: true, // filter by tag
         });
         // End Swagger UI call region
-
-        window.ui = ui;
     };
 </script>
 </body>

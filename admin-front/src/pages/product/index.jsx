@@ -112,7 +112,7 @@ export default class UserCenter extends Component {
             content,
             onOk: () => {
                 this.setState({deleting: true});
-                this.props.ajax.del('/products', {ids: selectedRowKeys}, {successTip: '删除成功！', errorTip: '删除失败！'})
+                this.props.ajax.del('/products', {ids: selectedRowKeys.join(',')}, {successTip: '删除成功！', errorTip: '删除失败！'})
                     .then(() => this.form.submit())
                     .finally(() => this.setState({deleting: false}));
             },

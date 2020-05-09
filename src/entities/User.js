@@ -20,8 +20,14 @@ export default {
             comment: '邮箱 不可为空',
             allowNull: false,
             rules: [
-                {type: 'email', message: '请输入正确的「邮箱」！'},
-                {required: true, message: '「邮箱」不可为空！'},
+                {
+                    type: 'email',
+                    message: '请输入正确的「邮箱」！',
+                },
+                {
+                    required: true,
+                    message: '「邮箱」不可为空！',
+                },
             ],
         },
         position: {
@@ -44,6 +50,12 @@ export default {
             defaultValue: null,
         },
     },
+
+    // swagger 可以用到
+    name: '用户',
+    // swagger 可以用到
+    description: '用户模块',
+    // 开发模式下 强制同步数据库
     // forceSync: true,
     // 关系
     belongsTo: 'Role',
@@ -51,6 +63,13 @@ export default {
     excludeFields: ['password'],
     // 添加 修改时，不参与后端校验字段
     excludeValidateFields: ['password'],
+
     // 查询字段
-    queryFields: ['account', {field: 'position', like: false}],
+    queryFields: [
+        'account',
+        {
+            field: 'position',
+            like: false,
+        },
+    ],
 };

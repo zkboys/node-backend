@@ -1,6 +1,27 @@
 const Router = require('koa-router');
 const router = new Router({prefix: '/api'});
 
+function Api(options) {
+    return function (target) {
+        console.log('class decorator');
+
+        if (typeof options === 'string') options = {tags: [options]};
+
+        if (options.tags && !Array.isArray(options.tags)) options.tags = [options.tags];
+
+        if (options.tags) {
+            options.tags.forEach((item, index, arr) => {
+                if (typeof item === 'string') arr[index] = {name: item};
+            });
+        }
+
+        // 类级别中间件
+        target.__options = options;
+
+        return target;
+    };
+}
+
 function method(methodName = 'get') {
     return function (path, options = {}) {
         return function (target, property, descriptor) {
@@ -28,32 +49,12 @@ function method(methodName = 'get') {
     };
 }
 
-function Api(options) {
-    return function (target) {
-        console.log('class decorator');
-
-        if (typeof options === 'string') options = {tags: [options]};
-
-        if (options.tags && !Array.isArray(options.tags)) options.tags = [options.tags];
-
-        if (options.tags) {
-            options.tags.forEach((item, index, arr) => {
-                if (typeof item === 'string') arr[index] = {name: item};
-            });
-        }
-
-        // 类级别中间件
-        target.__options = options;
-
-        return target;
-    };
-}
-
 module.exports = {
     router,
     Get: method('get'),
     Post: method('post'),
     Put: method('put'),
     Del: method('del'),
+    Patch: method('patch'),
     Api,
 };
