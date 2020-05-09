@@ -77,6 +77,8 @@ app
             maxFileSize: 200 * 1024 * 1024,
         },
     }))
+    .use(routes.decorator.routes())
+    .use(routes.decorator.allowedMethods())
     .use(routes.api.routes())
     .use(routes.api.allowedMethods())
     .use(routes.page.routes())

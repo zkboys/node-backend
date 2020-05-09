@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import svgCaptcha from 'svg-captcha';
 import uuid from 'uuid';
 
-import {Get, Post} from '../routes';
+import {Get, Post} from '../routes/decorator-routes';
 import {redis} from '../util';
 import passwordUtil from '../util/password-util';
 import userEntity from '../entities/User';
@@ -13,7 +13,7 @@ const jwtSecret = config.get('jwt.secret');
 const jwtExpire = config.get('jwt.expire');
 const jwtCookieName = config.get('jwt.cookieName');
 
-export default class UserController {
+export default class CommonController {
     // static routePrefix = 'user';
 
     // 新用户注册

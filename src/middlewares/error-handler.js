@@ -12,13 +12,18 @@ module.exports = (app, options) => async function (ctx, next) {
             ctx.status = err.status;
             ctx.body = err;
             return;
+        } else {
+            if (err.status === 500) {
+                console.error(err);
+
+                app.emit('err', err, this);
+            }
         }
 
-        app.emit('err', err, this);
         const status = err.status || 500;
 
         // 开发模式返回详细的错误信息，便于调试
-        const message = status === 500 && isDev ? err.message : 'Internal Server Error';
+        const message = isDev ? err.message : 'Internal Server Error';
 
         ctx.body = {
             code: status,
