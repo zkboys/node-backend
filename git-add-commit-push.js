@@ -10,6 +10,5 @@ program
 if (!program.message) {
     program.message = '整理代码';
 }
-console.log(program.message);
 
 execSync(`git add . && git commit -m '${program.message}' && git push origin master `, {stdio: [0, 1, 2]});
