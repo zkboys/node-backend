@@ -1,4 +1,4 @@
-import {Post, Put} from '../routes/decorator-routes';
+import {Post, Put, Get, Api} from '../routes/decorator-routes';
 
 /* @Api({
     prefix: '/products',
@@ -8,9 +8,57 @@ import {Post, Put} from '../routes/decorator-routes';
 
 @Api('商品') -> tags: ['商品']
 */
+@Api({
+    // prefix: '/aa',
+
+    // swagger tags的name会对用到每个接口的 tags中，完整的tags 将作为swagger.json.tags属性
+    // tags: ['商品'],
+    tags: '商品',
+    // tags: { // 完整的
+    //     name: '商品',
+    //     description: '商品系统管理',
+    //     externalDocs: {
+    //         description: '更多商品信息请查看：',
+    //         url: 'http://swagger.io',
+    //     },
+    // },
+    middleware: [ // 调用顺序 类级别中间件 -> 方法级别中间件 -> 方法
+        async function (ctx, next) {
+            console.log('调用了类级别中间件');
+            await next();
+        },
+    ],
+})
 export default class ProductController {
+    @Get('/products', {
+        flag: true,
+        middleware: [
+            async function (ctx, next) {
+                console.log('调用了方法级别中间件');
+                ctx.products = [
+                    {
+                        id: '123',
+                        name: '中间件产品',
+                        description: '中间件里面的描述',
+                    },
+                ];
+                await next();
+            },
+        ],
+    })
+    static async getAll(ctx) {
+        console.log('调用了方法');
+        const result = await ctx.$entity.Product.findAll();
+
+        return ctx.success({
+            total: 1,
+            list: [...ctx.products, ...result],
+        });
+    }
+
     // 新增产品
     @Post('/products', {
+
         // swagger validate 配置
         // 前端传递给后端的数据来源：header, path, query, body, formData
         // swagger 的 parameters 定义 object 或者 function(ctx)

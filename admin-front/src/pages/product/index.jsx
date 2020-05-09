@@ -122,11 +122,11 @@ export default class UserCenter extends Component {
     handleImport = () => {
         // TODO
     };
-    
+
     handle2 = () => {
         // TODO
     };
-    
+
     render() {
         const {
             loading,
