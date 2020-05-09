@@ -13,12 +13,17 @@ export default {
             type: UUID,
         },
         type: {
-            type: INTEGER,
+            type: STRING(10),
             comment: '类型 功能 菜单',
         },
         text: {
             type: STRING(50),
             comment: '菜单名称',
+            unique: true,
+        },
+        code: {
+            type: STRING(50),
+            comment: '功能编码',
             unique: true,
         },
         icon: {

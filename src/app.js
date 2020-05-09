@@ -12,10 +12,8 @@ const {pathToRegexp} = require('path-to-regexp');
 
 const util = require('./util');
 const logger = require('./util/logger');
-const middleware = require('./middlewares');
-const render = require('./middlewares/layout-ejs');
-const validate = require('./middlewares/validate');
-const zhCn = require('./middlewares/validate/i18n/zh-cn');
+const middleware = require('./middleware');
+const render = require('./middleware/layout-ejs');
 const routes = require('./routes');
 const {cron} = require('./cron');
 
@@ -29,7 +27,6 @@ const jwtCookieName = config.get('jwt.cookieName');
 const app = module.exports = new Koa();
 
 util.init();
-validate(app, zhCn);
 
 render(app, {
     root: path.join(__dirname, 'views'),
@@ -40,7 +37,7 @@ render(app, {
 });
 
 // 统一加载自定义中间件
-Object.values(middleware).forEach(fn => {
+middleware.forEach(fn => {
     app.use(fn(app));
 });
 

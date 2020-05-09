@@ -55,7 +55,7 @@ export default class UserCenter extends Component {
                     },
                 ];
 
-                return <Operator items={items}/>
+                return <Operator items={items}/>;
             },
         },
     ];
@@ -86,7 +86,7 @@ export default class UserCenter extends Component {
     };
 
     handleDelete = (id) => {
-        if(this.state.deleting) return;
+        if (this.state.deleting) return;
 
         this.setState({deleting: true});
         this.props.ajax.del(`/products/${id}`, null, {successTip: '删除成功！', errorTip: '删除失败！'})
@@ -116,7 +116,7 @@ export default class UserCenter extends Component {
                     .then(() => this.form.submit())
                     .finally(() => this.setState({deleting: false}));
             },
-        })
+        });
     };
 
     handleImport = () => {

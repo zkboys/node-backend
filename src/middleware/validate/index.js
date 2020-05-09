@@ -22,19 +22,20 @@ function hasKey(obj, key, transFn) {
 
 let local = defalutLocal;
 
-module.exports = function (app, i18n = defalutLocal) {
+module.exports = (app, options = {}) => async (ctx, next) => {
+    const {i18n = defalutLocal} = options;
     local = i18n;
 
-    app.context.checkQuery = function (key, transFn) {
+    ctx.checkQuery = function (key, transFn) {
         return new Validator(this, key, getValue(this.request.query, key, transFn), hasKey(this.request.query, key, transFn), this.request.query);
     };
-    app.context.checkParams = function (key) {
+    ctx.checkParams = function (key) {
         return new Validator(this, key, this.params[key], key in this.params, this.params);
     };
-    app.context.checkHeader = function (key) {
+    ctx.checkHeader = function (key) {
         return new Validator(this, key, this.header[key], key in this.header, this.header);
     };
-    app.context.checkBody = function (key, transFn) {
+    ctx.checkBody = function (key, transFn) {
         let body = this.request.body;
 
         if (!body) {
@@ -47,7 +48,7 @@ module.exports = function (app, i18n = defalutLocal) {
 
         return new Validator(this, key, getValue(body, key, transFn), hasKey(body, key, transFn), body);
     };
-    app.context.checkFile = function (key, deleteOnCheckFailed) {
+    ctx.checkFile = function (key, deleteOnCheckFailed) {
         if (typeof this.request.body === 'undefined' || typeof this.request.body.files === 'undefined') {
             if (!this.errors) {
                 this.errors = [local.noFile];
@@ -59,6 +60,8 @@ module.exports = function (app, i18n = defalutLocal) {
         const files = this.request.body.files;
         return new FileValidator(this, key, files && files[key], !!(files && files[key]), this.request.body, deleteOnCheckFailed);
     };
+
+    await next();
 };
 
 function isString(s) {

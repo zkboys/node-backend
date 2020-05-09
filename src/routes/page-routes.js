@@ -12,18 +12,13 @@ module.exports = pageRouter
 
     // 单页面应用，所有未捕获请求，返回index.html
     .get('*', ctx => {
-        // 区分ajax请求、静态文件请求，否者都会返回index.html
-        if (ctx.headers['x-requested-with'] === 'XMLHttpRequest' && ctx.path.startsWith('/api/')) {
-            ctx.status = 404;
+        // html 页面请求，返回首页
+        if (ctx.headers.accept.startsWith('text/html')) {
+            ctx.type = 'html';
+            ctx.body = fs.createReadStream(path.resolve(__dirname, '../../dist/index.html'));
             return;
         }
 
-        // 静态文件
-        if (ctx.path.startsWith('/dist/')) {
-            ctx.status = 404;
-            return;
-        }
-
-        ctx.type = 'html';
-        ctx.body = fs.createReadStream(path.resolve(__dirname, '../../dist/index.html'));
+        // 其他请求返回404
+        ctx.status = 404;
     });

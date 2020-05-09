@@ -22,6 +22,7 @@ export default async function (entities) {
     const menu = await Menu.findOne();
     if (!menu) {
         [
+            {text: '产品', icon: 'ant-design', path: '/products', order: 3000},
             {text: 'Ant Design 官网', icon: 'ant-design', url: 'https://ant-design.gitee.io', target: '', order: 2000},
             {text: '文档', icon: 'book', url: 'https://open.vbill.cn/react-admin', target: '_blank', order: 1200},
             {text: '自定义头部', icon: 'api', path: '/example/customer-header', order: 998},
@@ -33,6 +34,7 @@ export default async function (entities) {
             {id: 'example', text: '示例', icon: 'align-left', order: 600},
             {parentId: 'example', text: '可编辑表格', icon: 'align-left', path: '/example/table-editable', order: 600},
         ].forEach(menu => {
+            if (!menu.type) menu.type = '1';
             role.createMenu(menu);
         });
     }
