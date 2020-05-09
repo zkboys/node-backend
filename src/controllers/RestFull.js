@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import {Op} from 'sequelize';
 import inflection from 'inflection';
 import AsyncValidator from 'async-validator';
 
@@ -18,7 +19,7 @@ export default class RestFullController {
 
         const options = {
             where: {
-                $and: [conditions],
+                [Op.and]: [conditions],
             },
             order: [
                 ['updatedAt', 'DESC'],
@@ -85,7 +86,7 @@ export default class RestFullController {
 
         const options = {
             where: {
-                $and: [conditions],
+                [Op.and]: [conditions],
             },
             include,
         };
@@ -141,7 +142,7 @@ export default class RestFullController {
 
         const idArr = ids.split(',');
 
-        await ctx.$entityModel.destroy({where: {id: {$in: idArr}}});
+        await ctx.$entityModel.destroy({where: {id: {[Op.in]: idArr}}});
 
         ctx.success();
     }
@@ -181,7 +182,7 @@ export default class RestFullController {
             // 如果不转换，多对多 关联查询，拼接的sql有问题，可能是 sequelize 框架底层的问题
             const underField = inflection.underscore(field);
 
-            conditions.push({[underField]: like ? {$like: `%${value.trim()}%`} : value});
+            conditions.push({[underField]: like ? {[Op.like]: `%${value.trim()}%`} : value});
         };
 
         for (const [key, value] of Object.entries(others)) {

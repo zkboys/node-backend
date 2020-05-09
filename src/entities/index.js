@@ -1,6 +1,6 @@
 import path from 'path';
 import {Model} from 'sequelize';
-import glob from 'glob';
+import inflection from 'inflection';
 import loadFile from '../util/loadFile';
 import {sequelize} from './util';
 import initDatabase from './init-database';
@@ -36,6 +36,7 @@ const entities = loadFile({
 
         // 开发模式下，通过forceSync字段，可以强制同步创建数据库
         if (forceSync && isDev) {
+            console.log(`强制同步数据库 ${fileName} -> ${inflection.pluralize(inflection.underscore(fileName))}`);
             TemplateModel.sync({force: true});
         }
 
@@ -44,12 +45,17 @@ const entities = loadFile({
 });
 
 // 添加关系
-Object.entries(entities).forEach(([entityName, entity]) => {
+Object.entries(entities).forEach(([, entity]) => {
     const {entityConfig} = entity;
 
     const {hasOne, hasMany, belongsTo, belongsToMany} = entityConfig;
 
-    Object.entries({hasOne, hasMany, belongsTo, belongsToMany})
+    Object.entries({
+        hasOne,
+        hasMany,
+        belongsTo,
+        belongsToMany,
+    })
         .forEach(([keyWord, value]) => {
             if (!value) return;
             if (!Array.isArray(value)) value = [value];
@@ -70,7 +76,7 @@ isDev && sequelize.sync().then(async () => {
     // 初始化数据
     console.log('数据库同步完成');
 
-    initDatabase(entities);
+    await initDatabase(entities);
 });
 
 module.exports = entities;
