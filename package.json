@@ -21,7 +21,7 @@
         "test:watch": "yarn test --watch",
         "test:cover": "yarn test --coverage",
         "lint": "eslint --ignore-path .eslintignore . --quiet --ext .js",
-        "push": "node git-add-commit-push.js"
+        "acp": "node git-add-commit-push.js"
     },
     "nodemonConfig": {
         "ignore": [
