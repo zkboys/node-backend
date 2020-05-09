@@ -11,7 +11,7 @@ if (!program.message) {
     console.error('ERROR:请输入注释！！！');
     return;
 }
-console.log('🛩 push...');
+console.log('🔥 push...');
 exec(`git add . && git commit -m '${program.message}' && git push origin master `, function (error, stdout, stderr) {
     if (error) console.error(error);
 
