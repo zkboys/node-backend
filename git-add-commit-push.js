@@ -22,6 +22,7 @@ console.log('🔥 push...');
 result = execSync('git push origin master');
 console.log(result.toString());
 
+
 //
 // console.log('🔥 push...');
 // exec(`git add . && git commit -m '${program.message}' && git push origin master `, function (error, stdout, stderr) {
