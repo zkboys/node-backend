@@ -12,13 +12,15 @@ if (!program.message) {
     return;
 }
 
-const result = execSync('git add .');
+let result = execSync('git add .');
+console.log(result.toString());
 
-console.log(result);
+result = execSync(`git commit -m '${program.message}'`);
+console.log(result.toString());
 
-execSync(`git commit -m '${program.message}'`);
-
-execSync('git push origin master');
+console.log('🔥 push...');
+result = execSync('git push origin master');
+console.log(result.toString());
 
 //
 // console.log('🔥 push...');
