@@ -17,4 +17,5 @@ export default {
             field: 'r_value',
         },
     },
+    commonApi: false,
 };

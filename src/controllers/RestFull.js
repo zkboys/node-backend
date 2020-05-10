@@ -47,7 +47,7 @@ export default class RestFullController {
         }
     }
 
-    // 获取详情
+    // 根据id获取详情，没有其他查询条件
     static async findById(ctx) {
         const {id} = ctx.params;
 
@@ -59,13 +59,15 @@ export default class RestFullController {
             include,
         });
         result = RestFullController.filter(result, ctx.$entityModel, include);
+        if (!result) ctx.fail(404, '您查询的资源不存在');
 
         ctx.success(result);
     }
 
     // 根据条件 获取详情
     static async findOne(ctx) {
-        const attributes = ctx.$entityModel.tableAttributes;
+        const {tableAttributes: attributes, entityConfig: {queryFields}} = ctx.$entityModel;
+
         // 查询条件
         const conditions = [];
         // 关联查询
@@ -79,9 +81,17 @@ export default class RestFullController {
                 continue;
             }
 
-            key = inflection.underscore(key);
+            if (Array.isArray(queryFields)) {
+                const filedOpt = queryFields.find(item => item.field === key);
 
-            conditions.push({[key]: value});
+                if (filedOpt) {
+                    key = inflection.underscore(key);
+
+                    conditions.push({[key]: value});
+                } else {
+                    // ctx.fail(`查询条件字段：「${key}」不在「queryFields」配置中！`);
+                }
+            }
         }
 
         const options = {
@@ -92,6 +102,8 @@ export default class RestFullController {
         };
 
         let result = await ctx.$entityModel.findOne(options);
+        if (!result) ctx.fail(404, '您查询的资源不存在');
+
         result = RestFullController.filter(result, ctx.$entityModel, include);
 
         ctx.success(result);
@@ -108,8 +120,11 @@ export default class RestFullController {
             if (errors) ctx.fail(errors);
         }
 
-        const result = await ctx.$entityModel.bulkCreate(bodyArr);
-        return ctx.success(result);
+        let result = await ctx.$entityModel.bulkCreate(bodyArr);
+
+        result = RestFullController.filter(result, ctx.$entityModel);
+
+        return Array.isArray(body) ? ctx.success(result) : ctx.success(result[0]);
     }
 
     // 修改
@@ -122,7 +137,12 @@ export default class RestFullController {
         const errors = await RestFullController.validateBody(ctx);
         if (errors) ctx.fail(errors);
 
-        const result = await ctx.$entityModel.update(body, {where: {id: body.id}});
+        const exist = await ctx.$entityModel.findOne({where: {id: body.id}});
+        if (!exist) ctx.fail(404, '您要更新的资源不存在！');
+
+        let result = await ctx.$entityModel.update(body, {where: {id: body.id}});
+        result = RestFullController.filter(result, ctx.$entityModel);
+
         return ctx.success(result);
     }
 
@@ -154,25 +174,18 @@ export default class RestFullController {
      */
     static getConditions(ctx) {
         const {pageNum, pageSize, include, ...others} = ctx.query;
-        const {tableAttributes: attributes, entityConfig: {queryFields = true}} = ctx.$entityModel;
+        const {tableAttributes: attributes, entityConfig: {queryFields}} = ctx.$entityModel;
         const allFields = Object.keys(attributes);
 
         const conditions = [];
         const errors = [];
 
-        // string 的配置，统一转换为对象，默认模糊查询
-        let qfs;
         if (Array.isArray(queryFields)) {
-            qfs = queryFields.map(queryField => {
-                let opt = queryField;
+            queryFields.forEach(opt => {
+                const {field, required} = opt;
 
-                if (typeof queryField === 'string') {
-                    opt = {
-                        field: queryField,
-                        like: true,
-                    };
-                }
-                return opt;
+                // 必填字段不存在，直接 fail
+                if (required && !others[field]) ctx.fail(`查询条件字段：「${field}」不可为空！`);
             });
         }
 
@@ -192,26 +205,9 @@ export default class RestFullController {
                 continue;
             }
 
-            // 所有字段都参与查询条件
-            if (queryFields === true) {
-                // 也许是id 精确查询
-                if (key.endsWith('Id')) {
-                    addToConditions({
-                        field: key,
-                        value,
-                        like: false,
-                    });
-                } else {
-                    // 模糊查询
-                    addToConditions({
-                        field: key,
-                        value,
-                        like: true,
-                    });
-                }
-            } else if (Array.isArray(queryFields)) {
-                // 有查询条件配置， 以查询条件配置为主
-                const filedOpt = qfs.find(item => item.field === key);
+            // 查询条件
+            if (Array.isArray(queryFields)) {
+                const filedOpt = queryFields.find(item => item.field === key);
 
                 if (filedOpt) {
                     const {like = true} = filedOpt;
@@ -222,7 +218,7 @@ export default class RestFullController {
                         like,
                     });
                 } else {
-                    errors.push({[key]: `查询条件字段：「${key}」不存在「queryFields」配置中！`});
+                    errors.push({[key]: `查询条件字段：「${key}」不在「queryFields」配置中！`});
                 }
             }
         }

@@ -9,6 +9,10 @@ const renderPage = (page) => async ctx => await ctx.render(page);
 
 module.exports = pageRouter
     .get('/index', renderPage('index'))
+    .get('/swagger', (ctx) => {
+        ctx.type = 'html';
+        ctx.body = fs.createReadStream(path.resolve(__dirname, '../public/swagger/index.html'));
+    })
 
     // 单页面应用，所有未捕获请求，返回index.html
     .get('*', ctx => {

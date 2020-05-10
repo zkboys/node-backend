@@ -22,6 +22,41 @@ const entities = loadFile({
     ignoreLower: true, // 忽略首字母小写的文件
     operator: ({fileName, content}) => {
         let {attributes, options, forceSync} = content;
+
+        if (!('commonApi' in content)) content.commonApi = true;
+
+        if (!('queryFields' in content)) content.queryFields = true;
+
+        // 统一转化
+        // 单个字符串情况
+        if (typeof content.queryFields === 'string') content.queryFields = [content.queryFields];
+
+        // 字符串配置，转对象配置
+        if (Array.isArray(content.queryFields)) {
+            content.queryFields.forEach((item, index, arr) => {
+                if (typeof item === 'string') {
+                    arr[index] = {
+                        field: item,
+                        like: true, // 模糊查询，默认为true
+                    };
+                }
+            });
+        }
+        // 所有字段默认都是查询条件
+        if (content.queryFields === true) {
+            content.queryFields = Object.entries(attributes).map(([field]) => {
+                let like = true;
+
+                // 以id结尾的字段，不进行模糊查询
+                if (field.toLocaleLowerCase().endsWith('id')) like = false;
+
+                return {
+                    field,
+                    like,
+                };
+            });
+        }
+
         if (!options) options = {};
 
         if (!options.modelName) options.modelName = fileName;

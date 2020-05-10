@@ -2,7 +2,7 @@ import {Post, Put, Get, Api} from '../routes/decorator-routes';
 
 const formData = {
     id: {
-        type: 'integer', // 默认 string string integer array object file  boolean
+        type: 'string', // 默认 string string integer array object file  boolean
         description: '描述',
         example: 'xxx',
 
@@ -32,28 +32,11 @@ const formData = {
     },
 };
 
-/* @Api({
-    prefix: '/products',
-    tags: ['商品'],
-    tags: '商品',
-})
-
-@Api('商品') -> tags: ['商品']
-*/
 @Api({
-    // prefix: '/aa',
-
-    // swagger tags的name会对用到每个接口的 tags中，完整的tags 将作为swagger.json.tags属性
-    // tags: ['商品'],
-    tags: '商品',
-    // tags: { // 完整的
-    //     name: '商品',
-    //     description: '商品系统管理',
-    //     externalDocs: {
-    //         description: '更多商品信息请查看：',
-    //         url: 'http://swagger.io',
-    //     },
-    // },
+    tags: {
+        name: '商品',
+        description: '模块的描述',
+    },
     middleware: [ // 调用顺序 类级别中间件 -> 方法级别中间件 -> 方法
         async function (ctx, next) {
             console.log('调用了类级别中间件');
@@ -63,7 +46,7 @@ const formData = {
 })
 export default class ProductController {
     @Get('/products', {
-        flag: true,
+        tags: '妈的',
         middleware: [
             async function (ctx, next) {
                 console.log('调用了方法级别中间件');
@@ -90,6 +73,7 @@ export default class ProductController {
 
     // 新增产品
     @Post('/products', {
+        tags: '妈的',
 
         // swagger validate 配置
         // 前端传递给后端的数据来源：header, path, query, body, formData
@@ -120,7 +104,7 @@ export default class ProductController {
             product: {
                 type: 'object',
                 description: '商品啥的',
-                properties: formData,
+                properties: formData, // 组合方式
             },
             id: {
                 type: 'integer', // 默认 string string integer array object file  boolean
@@ -160,9 +144,9 @@ export default class ProductController {
         // tags: [], // 标签，分类，默认类装饰器中获取 或者 类名
         summary: '接口摘要',
         description: '接口描述',
-        consumes: [ // 请求数据类型，默认 application/json
-            'application/json',
-        ],
+        // consumes: [ // 请求数据类型，默认 application/json
+        //     'application/json',
+        // ],
         produces: [ // 返回数据类型 默认 application/json
             'application/json',
         ],

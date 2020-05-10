@@ -19,7 +19,7 @@ function getEntityModel(ctx, next) {
     // 路径无对应的实体
     if (!entity) ctx.throw(404, 'Not Found');
 
-    const {entityConfig: {commonApi = true}} = entity;
+    const {entityConfig: {commonApi}} = entity;
 
     if (!commonApi) ctx.throw(404, 'Not Found');
 
@@ -30,7 +30,7 @@ function getEntityModel(ctx, next) {
 module.exports = apiRouter
     .post('/upload', Util.upload)
     .get('/swagger.json', (ctx) => {
-        ctx.success(require('./get-swagger-validate').swaggerJson);
+        ctx.success(require('./swagger-json').swaggerJson);
     })
 
     // 通用 restful api 放到最后

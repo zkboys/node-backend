@@ -1,6 +1,8 @@
 const Router = require('koa-router');
 const router = new Router({prefix: '/api'});
-const {addOptions} = require('./get-swagger-validate');
+const {addOptions} = require('./swagger-json');
+
+// 装饰器，只用于生成路由，swagger文档，参数校验，不要参与其他业务逻辑
 
 function Api(options) {
     return function (target) {
@@ -8,11 +10,9 @@ function Api(options) {
 
         if (options.tags && !Array.isArray(options.tags)) options.tags = [options.tags];
 
-        if (options.tags) {
-            options.tags.forEach((item, index, arr) => {
-                if (typeof item === 'string') arr[index] = {name: item};
-            });
-        }
+        options.tags && options.tags.forEach((item, index, arr) => {
+            if (typeof item === 'string') arr[index] = {name: item};
+        });
 
         // 类级别中间件
         target.__options = options;
@@ -27,13 +27,18 @@ function method(methodName = 'get') {
             // 方法装饰器会优先于类装饰器执行，添加nextTick，可以回去到类装饰器处理之后的结果
             // 类装饰器 通过 target 可以传递一些数据到 方法装饰器中
             process.nextTick(() => {
+                // 当前类如果没有调用@Api 将不会有classOptions
                 const classOptions = target.__options || {};
+                classOptions.className = target.name;
 
-                // 收集所有的配置，生成swagger.json 和校验规则
+                const prefixedPath = classOptions.prefix ? `${classOptions.prefix}${path}` : `${path}`;
+
+                // 收集所有的配置，生成swagger.json
                 addOptions({
                     ...options,
-                    apiPath: path,
+                    apiPath: prefixedPath,
                     apiMethod: methodName,
+                    operationId: property,
                     classOptions,
                 });
 
@@ -47,7 +52,6 @@ function method(methodName = 'get') {
 
                 // 需要进行bind ，否则会导致方法内部的this丢失
                 descriptor.value = descriptor.value.bind(target);
-                const prefixedPath = classOptions.prefix ? `${classOptions.prefix}${path}` : `${path}`;
 
                 router[methodName](prefixedPath, ...middleware);
             });

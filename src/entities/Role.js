@@ -1,6 +1,7 @@
 import {STRING, UUID, UUIDV4} from 'sequelize';
 
 export default {
+    name: '系统角色',
     attributes: {
         id: {
             type: UUID,
@@ -24,5 +25,8 @@ export default {
         },
     },
     hasMany: 'User',
-    belongsToMany: {model: 'Menu', through: 'RoleMenu'},
+    belongsToMany: {
+        model: 'Menu',
+        through: 'RoleMenu',
+    },
 };

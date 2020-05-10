@@ -2,6 +2,10 @@ import {STRING, TEXT, UUID, INTEGER, UUIDV4} from 'sequelize';
 import passwordUtil from '../util/password-util';
 
 export default {
+    // swagger 可以用到
+    name: '用户',
+    // swagger 可以用到
+    description: '用户模块',
     attributes: {
         id: {
             type: UUID,
@@ -19,6 +23,7 @@ export default {
             type: STRING(100),
             comment: '邮箱 不可为空',
             allowNull: false,
+            enum: [],
             rules: [
                 {
                     type: 'email',
@@ -51,10 +56,6 @@ export default {
         },
     },
 
-    // swagger 可以用到
-    name: '用户',
-    // swagger 可以用到
-    description: '用户模块',
     // 开发模式下 强制同步数据库
     // forceSync: true,
     // 关系
@@ -70,6 +71,7 @@ export default {
         {
             field: 'position',
             like: false,
+            required: true,
         },
     ],
 };

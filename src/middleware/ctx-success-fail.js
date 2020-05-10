@@ -11,12 +11,19 @@ function success(data) {
     if (data !== undefined) this.body = data;
 }
 
-function fail(message, code = -1, data = null) {
+function fail(...args) {
+    let [code = -1, message, data] = args;
+
+    if (args.length === 1) message = args[0];
+
     const messages = getMessages(message, code);
     const firstMessage = messages[0];
 
+    let httpCode = 400;
+    if (code > 0 && code < 600) httpCode = code;
+
     // 使用throw，执行到throw时，此次请求就结束了，不必使用 return ctx.fail方式
-    this.throw(400, {
+    this.throw(httpCode, {
         isCtxFail: true,
         code,
         message: (typeof firstMessage === 'object' && 'message' in firstMessage) ? firstMessage.message : firstMessage,
