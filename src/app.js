@@ -60,6 +60,7 @@ app
     }).unless((ctx) => {
         if (/^\/api/.test(ctx.path)) {
             return pathToRegexp([
+                '/api/swagger.json',
                 '/api/login',
                 '/api/register',
                 '/api/wallpaper',

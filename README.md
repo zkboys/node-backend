@@ -61,6 +61,8 @@ entity文件命名规范：大写驼峰式命名，比如：`User.js` `RoleMenu.
 
 ```javascript
 module.exports = {
+    name: '', // 实体名称，会作为表的comment，也会作为swagger.tags.name
+    description: '', // 描述，作为swagger.tags.description
     attributes: { // 参考 sequelize
         id: {
             type: UUID,
@@ -191,6 +193,24 @@ const swaggerJson = { // swagger json 数据
     }, 
 })
 ```
+接口返回值如果是对象，或者对象数组，可使用如下方式定义
+```javascript
+{
+    object200: {
+        name: {
+            type: 'string',
+            description: '用户名',
+        },
+    },
+    array200: {
+        name: {
+            type: 'string',
+            description: '用户名',
+        },
+    },
+}
+```
+
 前端参数（header, path, query, body, formData）说明：
 
 swagger官方文档 [https://swagger.io/docs/specification/2-0/describing-parameters/](https://swagger.io/docs/specification/2-0/describing-parameters/)
@@ -200,8 +220,8 @@ swagger官方文档 [https://swagger.io/docs/specification/2-0/describing-parame
 {
     body: {
         name: { // 对象的key(name)作为字段名
-            type: 'integer', // 字段类型，默认：无；可用类型有： string integer array object file boolean
-            description: '描述', // 字段描述
+            type: 'integer', // 字段类型，默认：'string'；可用类型有： string integer array object file boolean
+            description: '描述', // 字段描述 
             example: 'xxx', // 字段示例
             default: 10, // 默认值
     

@@ -75,6 +75,8 @@ function swaggerPaths(options) {
             'application/json',
         ],
         responses = {},
+        object200,
+        array200,
 
         header,
         path,
@@ -129,6 +131,31 @@ function swaggerPaths(options) {
     }
 
     // 返回结果
+    if (object200 && !responses[200]) {
+        setPropertiesDefaultValue(object200, true);
+
+        responses[200] = {
+            description: '成功',
+            schema: {
+                type: 'object',
+                properties: object200,
+            },
+        };
+    }
+    if (array200 && !responses[200]) {
+        setPropertiesDefaultValue(array200, true);
+
+        responses[200] = {
+            description: '成功',
+            schema: {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: array200,
+                },
+            },
+        };
+    }
     const res = {
         200: {
             description: '成功',
@@ -170,6 +197,8 @@ function swaggerPaths(options) {
         formData,
     }).forEach(([key, value]) => {
         if (!value) return;
+
+        setPropertiesDefaultValue(value);
 
         if (key === 'body') {
             const required = Object.entries(value)
@@ -217,6 +246,25 @@ function swaggerPaths(options) {
         //     }
         // ]
     };
+}
+
+function setPropertiesDefaultValue(properties, descriptionToExample) {
+    if (!properties) return;
+    if (typeof properties !== 'object') return;
+
+    Object.entries(properties).forEach(([key, value]) => {
+        if (typeof value === 'string') {
+            properties[key] = value = {
+                type: 'string',
+                description: value,
+            };
+        }
+        if (!('type' in value)) value.type = 'string';
+
+        if (!('example' in value)) value.example = value.description;
+
+        if (value.properties) setPropertiesDefaultValue(value.properties);
+    });
 }
 
 module.exports = {

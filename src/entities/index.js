@@ -2,6 +2,7 @@ import path from 'path';
 import {Model} from 'sequelize';
 import inflection from 'inflection';
 import loadFile from '../util/loadFile';
+import dbTypeToSwagger from '../util/dbtype-to-swagger.js';
 import {sequelize} from './util';
 import initDatabase from './init-database';
 import config from 'config';
@@ -21,7 +22,28 @@ const entities = loadFile({
     ignoreFiles,
     ignoreLower: true, // 忽略首字母小写的文件
     operator: ({fileName, content}) => {
-        let {attributes, options, forceSync} = content;
+        let {name, attributes, options, forceSync, excludeFields = []} = content;
+
+        // 转化为swagger配置
+        content.toSwagger = function () {
+            const result = {};
+            Object.entries(attributes).forEach(([field, opt]) => {
+                if (excludeFields.includes(field)) return;
+
+                const {comment} = opt;
+                const type = dbTypeToSwagger(opt.type);
+                let description = field;
+
+                if (comment) description = comment.split(' ')[0];
+
+                result[field] = {
+                    type,
+                    description,
+                };
+            });
+
+            return result;
+        };
 
         if (!('commonApi' in content)) content.commonApi = true;
 
@@ -58,6 +80,8 @@ const entities = loadFile({
         }
 
         if (!options) options = {};
+
+        if (!options.comment) options.comment = name;
 
         if (!options.modelName) options.modelName = fileName;
 

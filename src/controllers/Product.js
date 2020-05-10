@@ -46,7 +46,6 @@ const formData = {
 })
 export default class ProductController {
     @Get('/products', {
-        tags: '妈的',
         middleware: [
             async function (ctx, next) {
                 console.log('调用了方法级别中间件');
@@ -73,7 +72,6 @@ export default class ProductController {
 
     // 新增产品
     @Post('/products', {
-        tags: '妈的',
 
         // swagger validate 配置
         // 前端传递给后端的数据来源：header, path, query, body, formData

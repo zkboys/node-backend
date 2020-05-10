@@ -15,7 +15,7 @@ export default {
         },
         type: {
             type: STRING(10),
-            comment: '类型 功能 菜单',
+            comment: '类型  1:菜单 2:功能',
         },
         text: {
             type: STRING(50),

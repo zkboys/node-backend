@@ -1,6 +1,6 @@
 const path = require('path');
 const port = +process.env.PORT || 4300;
-const secret = process.env.JWT_SECRET || 'shared-secret';
+const secret = process.env.JWT_SECRET || '095fd892-958d-4310-9e0f-eb1488dc8bb6';
 const https = process.env.HTTPS === 'true';
 const isDev = process.env.NODE_ENV === 'development';
 module.exports = {
@@ -30,9 +30,8 @@ module.exports = {
     jwt: {
         cookieName: 'SESSION_ID',
         tokenName: 'token',
-        // 最小单位 秒
+        // 过期时间 最小单位 秒
         expire: 60 * 60 * 24 * 7, // 七天
-        // expire: 3, // 秒
         secret,
     },
     upload: {

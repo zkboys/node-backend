@@ -1,5 +1,6 @@
 const inflection = require('inflection');
 const entities = require('../entities');
+const dbTypeToSwagger = require('../util/dbtype-to-swagger');
 
 // 通用restful接口 swagger文档
 module.exports = function commonApi() {
@@ -12,8 +13,6 @@ module.exports = function commonApi() {
             commonApi,
             name,
             description,
-            attributes,
-            queryFields,
         } = entityConfig;
 
         // 未开启通用接口，直接返回，不生成api文档
@@ -211,7 +210,12 @@ module.exports = function commonApi() {
 };
 
 function getQuery({attributes, queryFields}) {
-    const query = {};
+    const query = {
+        include: {
+            type: 'boolean',
+            description: '是否进行关联查询',
+        },
+    };
 
     if (queryFields && Array.isArray(queryFields)) {
         queryFields.forEach(item => {
@@ -219,13 +223,13 @@ function getQuery({attributes, queryFields}) {
             const options = attributes[field];
             const {comment, example, items} = options;
 
-            let type = 'string';
+            let type = dbTypeToSwagger(options.type);
 
             if (items) type = 'array';
 
             query[field] = {
                 type,
-                description: `${comment} - ${like ? '模糊查询' : '精确查询'}`,
+                description: `${comment || field} - ${like ? '模糊查询' : '精确查询'}`,
                 required,
                 enum: options.enum,
                 example,
@@ -250,7 +254,7 @@ function getProperties(entityConfig) {
         const required = allowNull === false && !defaultValue;
 
         result[field] = {
-            type,
+            type: dbTypeToSwagger(type),
             required,
             example: comment || field,
         };

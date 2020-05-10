@@ -4,20 +4,41 @@ import jwt from 'jsonwebtoken';
 import svgCaptcha from 'svg-captcha';
 import uuid from 'uuid';
 
-import {Get, Post} from '../routes/decorator-routes';
+import {Api, Get, Post} from '../routes/decorator-routes';
 import {redis} from '../util';
 import passwordUtil from '../util/password-util';
-import userEntity from '../entities/User';
+import userEntityConfig from '../entities/User';
 
 const jwtSecret = config.get('jwt.secret');
 const jwtExpire = config.get('jwt.expire');
 const jwtCookieName = config.get('jwt.cookieName');
 
+const reqUser = {
+    account: {
+        description: '账号',
+        required: true,
+    },
+    password: {
+        description: '密码',
+        required: true,
+    },
+};
+
+const resUser = userEntityConfig.toSwagger();
+const loginResUser = {
+    ...resUser,
+    token: '登录凭证',
+};
+
+@Api('通用接口')
 export default class CommonController {
     // static routePrefix = 'user';
 
     // 新用户注册
-    @Post('/register')
+    @Post('/register', {
+        body: reqUser,
+        object200: resUser,
+    })
     static async register(ctx) {
         const account = ctx.checkBody('account').label('用户名').notEmpty().len(4, 20).value;
         const password = ctx.checkBody('password').label('密码').notEmpty().len(3, 20).value;
@@ -33,11 +54,14 @@ export default class CommonController {
             password: password,
         });
 
-        ctx.success(createdUser);
+        ctx.success(_.omit(createdUser, userEntityConfig.excludeFields));
     }
 
     // 用户登录
-    @Post('/login')
+    @Post('/login', {
+        body: reqUser,
+        object200: loginResUser,
+    })
     static async login(ctx) {
         const account = ctx.checkBody('account').label('用户名').notEmpty().value;
         const password = ctx.checkBody('password').label('密码').notEmpty().value;
@@ -62,12 +86,14 @@ export default class CommonController {
 
         const errorMessage = '用户名或密码错误';
 
-        const user = await ctx.$entity.User.findOne({where: {account}});
+        let user = await ctx.$entity.User.findOne({where: {account}});
         const verifyPassword = user && passwordUtil.compare(password, user.password);
 
         if (!verifyPassword || !user) {
             ctx.fail(errorMessage);
         }
+
+        user = user.toJSON();
 
         // expiresIn 单位 秒
         const token = jwt.sign({id: user.id}, jwtSecret, {expiresIn: jwtExpire});
@@ -83,10 +109,8 @@ export default class CommonController {
 
         // 存储到redis，退出登录会用到
         await redis.set(token, token);
-        // 登录成功，清除redis中的browserId
-        await redis.set(`${account}`, 0);
 
-        return ctx.success(_.omit(user.toJSON(), userEntity.excludeFields));
+        return ctx.success(_.omit(user, userEntityConfig.excludeFields));
     }
 
     // 退出登录
@@ -102,7 +126,22 @@ export default class CommonController {
     }
 
     //  修改密码
-    @Post('/changePassword')
+    @Post('/changePassword', {
+        body: {
+            id: {
+                description: '用户id',
+                required: true,
+            },
+            oldPassword: {
+                description: '旧密码',
+                required: true,
+            },
+            newPassword: {
+                description: '新密码',
+                required: true,
+            },
+        },
+    })
     static async changePassword(ctx) {
         const id = ctx.checkBody('id').label('用户id').notEmpty().value;
         const oldPassword = ctx.checkBody('oldPassword').label('旧密码').notEmpty().value;
