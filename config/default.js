@@ -11,6 +11,12 @@ module.exports = {
     pageSize: 30,
     proxy: false,
     logSql: true,
+
+    swaggerVersion: '2.0',
+    apiBasePath: '/api',
+    externalDocs: {},
+    schemes: ['http'],
+
     unsplashClientId: '',
     cronJobExpression: '0 * * * *',
     blackList: {

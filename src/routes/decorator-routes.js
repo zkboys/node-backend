@@ -1,10 +1,9 @@
 const Router = require('koa-router');
 const router = new Router({prefix: '/api'});
+const {addOptions} = require('./get-swagger-validate');
 
 function Api(options) {
     return function (target) {
-        console.log('class decorator');
-
         if (typeof options === 'string') options = {tags: [options]};
 
         if (options.tags && !Array.isArray(options.tags)) options.tags = [options.tags];
@@ -28,8 +27,15 @@ function method(methodName = 'get') {
             // 方法装饰器会优先于类装饰器执行，添加nextTick，可以回去到类装饰器处理之后的结果
             // 类装饰器 通过 target 可以传递一些数据到 方法装饰器中
             process.nextTick(() => {
-                options.flag && console.log('method decorator');
                 const classOptions = target.__options || {};
+
+                // 收集所有的配置，生成swagger.json 和校验规则
+                addOptions({
+                    ...options,
+                    apiPath: path,
+                    apiMethod: methodName,
+                    classOptions,
+                });
 
                 const middleware = [];
                 // 处理类级别中间件

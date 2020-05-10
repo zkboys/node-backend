@@ -1,7 +1,7 @@
 const Router = require('koa-router');
 const inflection = require('inflection');
-
-const apiRouter = new Router({prefix: '/api'});
+const {apiBasePath = ''} = require('config');
+const apiRouter = new Router({prefix: apiBasePath});
 
 const {
     Util,
@@ -21,8 +21,6 @@ function getEntityModel(ctx, next) {
 
     const {entityConfig: {commonApi = true}} = entity;
 
-    console.log(entity.entityConfig);
-
     if (!commonApi) ctx.throw(404, 'Not Found');
 
     ctx.$entityModel = entity;
@@ -31,6 +29,9 @@ function getEntityModel(ctx, next) {
 
 module.exports = apiRouter
     .post('/upload', Util.upload)
+    .get('/swagger.json', (ctx) => {
+        ctx.success(require('./get-swagger-validate').swaggerJson);
+    })
 
     // 通用 restful api 放到最后
     .get('/:model', getEntityModel, RestFull.findAll) // 查询全部 或分页查询
