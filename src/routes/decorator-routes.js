@@ -1,6 +1,7 @@
 const Router = require('koa-router');
 const router = new Router({prefix: '/api'});
 const {addOptions} = require('./swagger-json');
+const validateApi = require('../middleware/validate-api');
 
 // 装饰器，只用于生成路由，swagger文档，参数校验，不要参与其他业务逻辑
 
@@ -34,15 +35,16 @@ function method(methodName = 'get') {
                 const prefixedPath = classOptions.prefix ? `${classOptions.prefix}${path}` : `${path}`;
 
                 // 收集所有的配置，生成swagger.json
-                addOptions({
+                const allOptions = {
                     ...options,
                     apiPath: prefixedPath,
                     apiMethod: methodName,
                     operationId: property,
                     classOptions,
-                });
+                };
+                addOptions(allOptions);
 
-                const middleware = [];
+                const middleware = [validateApi(allOptions)];
                 // 处理类级别中间件
                 if (classOptions.middleware) middleware.push(...classOptions.middleware);
                 // 处理方法级别中间件

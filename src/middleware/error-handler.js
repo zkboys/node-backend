@@ -6,18 +6,16 @@ module.exports = (app, options) => async function (ctx, next) {
     try {
         await next();
     } catch (err) {
+        console.error(err);
+
+        app.emit('err', err, this);
+
         if (err.isCtxFail) {
             Reflect.deleteProperty(err, 'isCtxFail');
 
             ctx.status = err.status;
             ctx.body = err;
             return;
-        } else {
-            if (err.status === 500) {
-                console.error(err);
-
-                app.emit('err', err, this);
-            }
         }
 
         const status = err.status || 500;
@@ -28,6 +26,7 @@ module.exports = (app, options) => async function (ctx, next) {
         ctx.body = {
             code: status,
             message,
+            messages: err.messages,
         };
         ctx.status = status;
     }

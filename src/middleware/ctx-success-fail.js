@@ -14,7 +14,11 @@ function success(data) {
 function fail(...args) {
     let [code = -1, message, data] = args;
 
-    if (args.length === 1) message = args[0];
+    if (args.length === 1) {
+        message = args[0];
+        code = -1;
+        data = undefined;
+    }
 
     const messages = getMessages(message, code);
     const firstMessage = messages[0];

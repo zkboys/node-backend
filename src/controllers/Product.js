@@ -46,19 +46,14 @@ const formData = {
 })
 export default class ProductController {
     @Get('/products', {
-        middleware: [
-            async function (ctx, next) {
-                console.log('调用了方法级别中间件');
-                ctx.products = [
-                    {
-                        id: '123',
-                        name: '中间件产品',
-                        description: '中间件里面的描述',
-                    },
-                ];
-                await next();
+        query: {
+            name: {
+                description: '名称',
+                rules: [
+                    {required: true, message: '名称不能为空！'},
+                ],
             },
-        ],
+        },
     })
     static async getAll(ctx) {
         console.log('调用了方法');
@@ -66,7 +61,7 @@ export default class ProductController {
 
         return ctx.success({
             total: 1,
-            list: [...ctx.products, ...result],
+            list: result,
         });
     }
 

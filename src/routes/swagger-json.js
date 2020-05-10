@@ -204,6 +204,7 @@ function swaggerPaths(options) {
             const required = Object.entries(value)
                 .filter(([, opt]) => opt.required)
                 .map(([field]) => field);
+
             const schema = {
                 type: 'object', // fixme 其他类型呢？
                 required,
@@ -213,7 +214,6 @@ function swaggerPaths(options) {
                 in: key,
                 name: key,
                 description: `${key} 数据描述`,
-                required: true,
                 schema,
             });
         } else {
@@ -261,13 +261,14 @@ function setPropertiesDefaultValue(properties, descriptionToExample) {
         }
         if (!('type' in value)) value.type = 'string';
 
-        if (!('example' in value)) value.example = value.description;
+        if (!('example' in value) && descriptionToExample) value.example = value.description;
 
         if (value.properties) setPropertiesDefaultValue(value.properties);
     });
 }
 
 module.exports = {
+    setPropertiesDefaultValue,
     addOptions,
     swaggerJson: swaggerJson,
 };
