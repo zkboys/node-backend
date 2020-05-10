@@ -20,6 +20,11 @@ function fail(...args) {
         data = undefined;
     }
 
+    // 如果message是一个错误，code默认为500
+    if (message instanceof Error && code === -1) {
+        code = 500;
+    }
+
     const messages = getMessages(message, code);
     const firstMessage = messages[0];
 
@@ -58,6 +63,10 @@ function getMessages(msg, code) {
     }
 
     if (typeof msg === 'string') return [msg];
+
+    if (msg instanceof Error) return [msg.message];
+
+    return [];
 }
 
 module.exports = function (options, app) {

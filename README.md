@@ -250,7 +250,7 @@ swagger官方文档 [https://swagger.io/docs/specification/2-0/describing-parame
                     message: 'id不能为空',
                 }, // 如果不存在，从上成required: true获取
             ],
-            // 可以是函数，返回值作为字段的rules配置
+            // 可以是函数（支持async），返回值作为字段的rules配置
             rules: (ctx) => {
                 return [];
             },

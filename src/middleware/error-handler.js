@@ -6,9 +6,15 @@ module.exports = (app, options) => async function (ctx, next) {
     try {
         await next();
     } catch (err) {
-        console.error(err);
+        // 不输出日志的情况
+        const noLog = err.isValidateError ||
+            (err.isCtxFail && err.status === 400);
 
-        app.emit('err', err, this);
+        if (!noLog) {
+            console.error(err);
+
+            app.emit('err', err, this);
+        }
 
         if (err.isCtxFail) {
             Reflect.deleteProperty(err, 'isCtxFail');

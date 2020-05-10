@@ -47,11 +47,19 @@ const formData = {
 export default class ProductController {
     @Get('/products', {
         query: {
-            name: {
-                description: '名称',
-                rules: [
-                    {required: true, message: '名称不能为空！'},
-                ],
+            // name: {
+            //     description: '名称',
+            //     rules: [
+            //         {required: true, message: '名称不能为空！'},
+            //     ],
+            // },
+            price: {
+                description: '价格',
+                rules: async (ctx) => {
+                    return [
+                        {required: true},
+                    ];
+                },
             },
         },
     })

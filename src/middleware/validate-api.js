@@ -43,8 +43,11 @@ module.exports = (options) => async (ctx, next) => {
 
         const descriptor = {};
 
-        Object.entries(value).forEach(([field, opt]) => {
-            const rules = opt.rules || [];
+        for (const [field, opt] of Object.entries(value)) {
+            let rules = opt.rules || [];
+
+            if (typeof rules === 'function') rules = await rules(ctx);
+
             const {
                 required,
                 description,
@@ -75,7 +78,7 @@ module.exports = (options) => async (ctx, next) => {
             }
 
             descriptor[field] = rules;
-        });
+        }
 
         // 进行校验，发现一个错误，立即throw
         const validator = new AsyncValidator(descriptor);
@@ -85,7 +88,7 @@ module.exports = (options) => async (ctx, next) => {
             const {errors: errs} = error;
 
             // 校验错误
-            if (errs) ctx.throw(400, {message: errs[0].message, messages: errs});
+            if (errs) ctx.throw(400, {isValidateError: true, message: errs[0].message, messages: errs});
 
             // 不知道发生了什么错误
             ctx.throw(500, error);
