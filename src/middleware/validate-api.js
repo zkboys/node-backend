@@ -1,10 +1,6 @@
 const AsyncValidator = require('async-validator').default;
 const {setPropertiesDefaultValue} = require('../routes/swagger-json');
 
-// 接口装饰器使用的中间件，用来校验接口参数
-// 校验规则只从接口装饰器配置中获取，不从entity配置中获取
-// entity 中的校验规则有entity层面进行校验
-
 /**
  * 接口装饰器校验中间件
  *      接口装饰器使用的中间件，用来校验接口参数
