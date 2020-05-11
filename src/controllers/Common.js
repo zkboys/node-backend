@@ -34,8 +34,8 @@ const loginResUser = {
 export default class CommonController {
     // static routePrefix = 'user';
 
-    // 新用户注册
     @Post('/register', {
+        summary: '新用户注册',
         body: reqUser,
         object200: resUser,
     })
@@ -57,8 +57,8 @@ export default class CommonController {
         ctx.success(_.omit(createdUser, userEntityConfig.excludeFields));
     }
 
-    // 用户登录
     @Post('/login', {
+        summary: '用户登录',
         body: reqUser,
         object200: loginResUser,
     })
@@ -76,8 +76,8 @@ export default class CommonController {
             const captcha = ctx.checkBody('captcha').notEmpty().value;
             const captchaId = ctx.checkBody('captchaId').notEmpty().value;
 
-            const redisCaptcha = await redis.get(`captchaId${captchaId}`);
-            await redis.del(`captchaId${captchaId}`);
+            const redisCaptcha = await redis.get(`captchaId-${captchaId}`);
+            await redis.del(`captchaId-${captchaId}`);
 
             if (redisCaptcha?.toLowerCase() !== captcha?.toLowerCase()) {
                 ctx.fail('验证码不正确');
@@ -113,20 +113,21 @@ export default class CommonController {
         return ctx.success(_.omit(user, userEntityConfig.excludeFields));
     }
 
-    // 退出登录
-    @Post('/logout')
+    @Post('/logout', {
+        summary: '退出登录',
+    })
     static async logout(ctx) {
         const token = ctx.state.validateToken;
 
-        redis.del(token);
+        await redis.del(token);
 
         ctx.cookies.set(jwtCookieName, null);
 
         ctx.success();
     }
 
-    //  修改密码
     @Post('/changePassword', {
+        summary: '修改密码',
         body: {
             id: {
                 description: '用户id',
@@ -162,11 +163,16 @@ export default class CommonController {
         await ctx.$entity.User.update({password: newPassword}, {where: {id}});
 
         // 修改密码成功之后，直接退出登录了
-        this.logout(ctx);
+        await this.logout(ctx);
     }
 
-    // 生成图片验证码
-    @Get('/getCaptcha')
+    @Get('/getCaptcha', {
+        summary: '生成图片验证码',
+        object200: {
+            captcha: '图片数据svg',
+            captchaId: '验证码id',
+        },
+    })
     static async getCaptcha(ctx) {
         const captchaId = uuid();
         const captcha = svgCaptcha.create({
@@ -180,7 +186,7 @@ export default class CommonController {
 
         const {data, text} = captcha;
 
-        redis.set(`captchaId${captchaId}`, text);
+        redis.set(`captchaId-${captchaId}`, text);
 
         ctx.success({
             captcha: data,

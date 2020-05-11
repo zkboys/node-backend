@@ -1,21 +1,26 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "swagger文档描述",
+        "description": "This is a sample server Petstore server.  You can find out more about     Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).      For this sample, you can use the api key `special-key` to test the authorization     filters.",
         "version": "1.0.0",
-        "title": "文档标题"
+        "title": "Swagger Petstore",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "email": "apiteam@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
     },
-    "externalDocs": {
-        "description": "更多信息，请访问",
-        "url": "http://swagger.io"
-    },
-    "basePath": "/api",
+    "host": "petstore.swagger.io",
+    "basePath": "/v2",
     "tags": [
         {
-            "name": "用户",
-            "description": "系统用户管理",
+            "name": "pet",
+            "description": "Everything about your Pets",
             "externalDocs": {
-                "description": "更多信息请查看：",
+                "description": "Find out more",
                 "url": "http://swagger.io"
             }
         },
@@ -33,27 +38,31 @@
         }
     ],
     "schemes": [
+        "https",
         "http"
     ],
     "paths": {
-        "/users": {
+        "/pet": {
             "post": {
                 "tags": [
-                    "用户"
+                    "pet"
                 ],
-                "summary": "我是接口的摘要吗？",
-                "description": "我是接口的描述吗？",
+                "summary": "Add a new pet to the store",
+                "description": "",
+                "operationId": "addPet",
                 "consumes": [
-                    "application/json"
+                    "application/json",
+                    "application/xml"
                 ],
                 "produces": [
+                    "application/xml",
                     "application/json"
                 ],
                 "parameters": [
                     {
                         "in": "body",
                         "name": "body",
-                        "description": "需要保存到数据库中的用户参数信息",
+                        "description": "Pet object that needs to be added to the store",
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/Pet"
@@ -61,20 +70,22 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "成功"
-                    },
-                    "400": {
-                        "description": "发生错误",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
+                    "405": {
+                        "description": "Invalid input"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "petstore_auth": [
+                            "write:pets",
+                            "read:pets"
+                        ]
+                    }
+                ]
             },
             "put": {
                 "tags": [
-                    "用户"
+                    "pet"
                 ],
                 "summary": "Update an existing pet",
                 "description": "",
@@ -453,7 +464,7 @@
         "/store/order": {
             "post": {
                 "tags": [
-                    "用户"
+                    "store"
                 ],
                 "summary": "Place an order for a pet",
                 "description": "",
@@ -831,24 +842,23 @@
             }
         }
     },
-    "definitions": {
-        "Error": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "messages": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
+    "securityDefinitions": {
+        "petstore_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "http://petstore.swagger.io/oauth/dialog",
+            "flow": "implicit",
+            "scopes": {
+                "write:pets": "modify pets in your account",
+                "read:pets": "read your pets"
             }
         },
+        "api_key": {
+            "type": "apiKey",
+            "name": "api_key",
+            "in": "header"
+        }
+    },
+    "definitions": {
         "Order": {
             "type": "object",
             "properties": {
@@ -1018,5 +1028,9 @@
                 }
             }
         }
+    },
+    "externalDocs": {
+        "description": "Find out more about Swagger",
+        "url": "http://swagger.io"
     }
 }

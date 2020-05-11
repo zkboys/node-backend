@@ -11,7 +11,7 @@ const {
     description,
 } = require('../../package.json');
 
-const commonApi = require('./common-api-swagger-json');
+const commonApi = require('./swagger-common-api');
 
 const swaggerJson = { // swagger json 数据
     swagger: swaggerVersion,
@@ -198,7 +198,7 @@ function swaggerPaths(options) {
     }).forEach(([key, value]) => {
         if (!value) return;
 
-        setPropertiesDefaultValue(value);
+        setPropertiesDefaultValue(value, true);
 
         if (key === 'body') {
             const required = Object.entries(value)
@@ -263,7 +263,7 @@ function setPropertiesDefaultValue(properties, descriptionToExample) {
 
         if (!('example' in value) && descriptionToExample) value.example = value.description;
 
-        if (value.properties) setPropertiesDefaultValue(value.properties);
+        if (value.properties) setPropertiesDefaultValue(value.properties, descriptionToExample);
     });
 }
 
