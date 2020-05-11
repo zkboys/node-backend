@@ -2,6 +2,7 @@ import {INTEGER, STRING, UUID, UUIDV4} from 'sequelize';
 
 export default {
     name: '系统菜单',
+    commonApi: true,
     attributes: {
         id: {
             type: UUID,

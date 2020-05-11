@@ -45,7 +45,7 @@ const entities = loadFile({
             return result;
         };
 
-        if (!('commonApi' in content)) content.commonApi = true;
+        if (!('commonApi' in content)) content.commonApi = false;
 
         if (!('queryFields' in content)) content.queryFields = true;
 

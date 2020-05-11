@@ -1,6 +1,7 @@
 import {STRING, UUID, UUIDV4} from 'sequelize';
 
 export default {
+    commonApi: false,
     attributes: {
         id: {
             type: UUID,
@@ -17,5 +18,4 @@ export default {
             field: 'r_value',
         },
     },
-    commonApi: false,
 };

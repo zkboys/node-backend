@@ -90,7 +90,7 @@ module.exports = {
     },
     options: {}, // 参考 sequelize
     forceSync: true, // 开发时，强制同步数据库
-    commonApi: false, // 此实体是否提供通用restful接口，默认true
+    commonApi: false, // 此实体是否提供通用restful接口，默认 false
     excludeFields: [], // 不给前端返回的字段
     excludeValidateFields: [], // 不参与后端校验的字段
     queryFields: ['account', {field: 'position', like: false, required: true}], // queryFields: [] 指定查询条件字段， like默认为true，进行模糊查询; queryFields: true 所有字段参与查询条件，默认为true
@@ -186,6 +186,15 @@ const swaggerJson = { // swagger json 数据
     responses: { // 接口返回描述，默认如下：
         200: {
             description: '成功',
+            schema: {
+                type: 'object',
+                properties: {
+                    name: {
+                        type: 'string',
+                        description: '姓名',
+                    }           
+                },
+            },
         },
         400: {
             // 太多了，参见 src/routes/swagger-json.js

@@ -4,6 +4,7 @@ import passwordUtil from '../util/password-util';
 export default {
     // 作为表的注释，options.comment; swagger 可以用到
     name: '用户',
+    commonApi: true,
     // swagger 可以用到
     description: '用户模块',
     attributes: {

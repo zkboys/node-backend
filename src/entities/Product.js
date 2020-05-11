@@ -2,6 +2,7 @@ import {STRING, UUID, UUIDV4} from 'sequelize';
 
 export default {
     name: '商品',
+    commonApi: true,
     attributes: {
         id: {
             type: UUID,
