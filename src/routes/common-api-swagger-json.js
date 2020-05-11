@@ -22,6 +22,8 @@ module.exports = function commonApi() {
 
         if (!name) name = modelName;
 
+        name = name.split(' ')[0];
+
         const classOptions = {
             tags: [
                 {
@@ -192,18 +194,6 @@ module.exports = function commonApi() {
             },
             classOptions,
         });
-
-        /*
-        .get('/:model', getEntityModel, RestFull.findAll) // 查询全部 或分页查询
-        .get('/one/:model', getEntityModel, RestFull.findOne) // 根据条件查询详情
-        .get('/:model/:id', getEntityModel, RestFull.findById) // 根据id查询详情
-        .post('/:model', getEntityModel, RestFull.save) // 添加
-        .put('/:model', getEntityModel, RestFull.update) // 修改
-        .del('/:model/:id', getEntityModel, RestFull.deleteById) // 根据id删除
-        .del('/:model', getEntityModel, RestFull.deleteByIds) // 根据ids批量删除
-        * */
-
-        // console.log(attributes);
     });
 
     return result;

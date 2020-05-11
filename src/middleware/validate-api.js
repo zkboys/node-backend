@@ -51,7 +51,6 @@ module.exports = (options) => async (ctx, next) => {
             const {
                 required,
                 description,
-                format,
                 enum: enumRules,
             } = opt;
             const label = description || field;
@@ -65,15 +64,9 @@ module.exports = (options) => async (ctx, next) => {
 
             if (enumRules && !rules.find(item => ('enum' in item))) {
                 rules.push({
+                    type: 'enum',
                     enum: enumRules,
                     message: `${key}中参数「${label}」必须为[${enumRules.join()}]其中之一！`,
-                });
-            }
-
-            if (format && !rules.find(item => ('format' in item))) {
-                rules.push({
-                    format,
-                    message: `${key}中参数「${label}」格式错误！`,
                 });
             }
 

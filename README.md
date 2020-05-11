@@ -219,6 +219,7 @@ swagger官方文档 [https://swagger.io/docs/specification/2-0/describing-parame
 ```javascript
 {
     body: {
+        remark: '备注', // 简写为 description，默认type: string
         name: { // 对象的key(name)作为字段名
             type: 'integer', // 字段类型，默认：'string'；可用类型有： string integer array object file boolean
             description: '描述', // 字段描述 
@@ -263,6 +264,55 @@ swagger官方文档 [https://swagger.io/docs/specification/2-0/describing-parame
     }
 }
 ```
+## async-validator 
+
+types
+```
+string: Must be of type string. This is the default type.
+number: Must be of type number.
+boolean: Must be of type boolean.
+method: Must be of type function.
+regexp: Must be an instance of RegExp or a string that does not generate an exception when creating a new RegExp.
+integer: Must be of type number and an integer.
+float: Must be of type number and a floating point number.
+array: Must be an array as determined by Array.isArray.
+object: Must be of type object and not Array.isArray.
+enum: Value must exist in the enum.
+date: Value must be valid as determined by Date
+url: Must be of type url.
+hex: Must be of type hex.
+email: Must be of type email.
+any: Can be any type.
+```
+
+常用写法：
+```javascript
+rules: [
+    {required: true, message: '不能为空'},
+    {pattern: /d/, message: '格式不正确'},
+    {len: 10, message: '长度必须是10'},
+    {min: 10, message: '最小长度10'},
+    {max: 10, message: '最大长度10'},
+    {type: "enum", enum: ['admin', 'user', 'guest'], message: '必须是其中之一'},
+    {asyncValidator(rule, value) {
+       return Promise;
+     }
+    }
+    validator(rule, value, callback) {
+      return value === 'test';
+    }, 
+    validator(rule, value, callback) {
+      return new Error(`'${value} is not equal to "test".'`);
+    },  
+    validator(rule, value) {
+      return [
+        new Error('Message 1'),
+        new Error('Message 2'),
+      ];
+    }
+]
+```
+
 
 
 ## TODO
@@ -270,9 +320,8 @@ swagger官方文档 [https://swagger.io/docs/specification/2-0/describing-parame
 - [x] 静态文件的缓存策略；
 - [x] 国际化 暂不支持，具体项目需要时再添加；
 - [x] 统一异常处理；
-- [ ] swagger文档
+- [x] swagger文档
     - [x] 装饰器方式
     - [x] :id -> {id} 问题
-    - [ ] 与async-validate结合，进行前端提交数据校验
-    - [ ] 通用restful接口，统一生成swagger文档，排除被覆盖情况
-    - [ ] 更换ui模板，原生的太丑，太难用 https://github.com/xiaoymin/swagger-bootstrap-ui
+    - [x] 与async-validate结合，进行前端提交数据校验
+    - [x] 通用restful接口，统一生成swagger文档，排除被覆盖情况

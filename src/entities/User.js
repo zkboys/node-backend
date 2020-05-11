@@ -2,7 +2,7 @@ import {STRING, TEXT, UUID, INTEGER, UUIDV4} from 'sequelize';
 import passwordUtil from '../util/password-util';
 
 export default {
-    // swagger 可以用到
+    // 作为表的注释，options.comment; swagger 可以用到
     name: '用户',
     // swagger 可以用到
     description: '用户模块',
