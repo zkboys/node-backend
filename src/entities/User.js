@@ -72,7 +72,6 @@ export default {
         {
             field: 'position',
             like: false,
-            required: true,
         },
     ],
 };

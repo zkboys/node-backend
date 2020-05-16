@@ -332,3 +332,6 @@ rules: [
     - [x] :id -> {id} 问题
     - [x] 与async-validate结合，进行前端提交数据校验
     - [x] 通用restful接口，统一生成swagger文档，排除被覆盖情况
+- [ ] services
+    - [ ] service 内部 this.$entity this.ctx
+    - [ ] controller 内部 this.$service 

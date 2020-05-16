@@ -20,8 +20,7 @@
         "test": "cross-env NODE_ENV=test jest --runInBand --forceExit",
         "test:watch": "yarn test --watch",
         "test:cover": "yarn test --coverage",
-        "lint": "eslint --ignore-path .eslintignore . --quiet --ext .js",
-        "push": "node git-add-commit-push.js"
+        "lint": "eslint --ignore-path .eslintignore . --quiet --ext .js"
     },
     "nodemonConfig": {
         "ignore": [
