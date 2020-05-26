@@ -9,6 +9,7 @@
         "node-backend"
     ],
     "scripts": {
+        "start:all": "concurrently \"yarn start\" \"cd admin-front && yarn start\"",
         "start": "cross-env NODE_ENV=development nodemon --exec babel-node src/app",
         "pro": "cross-env NODE_ENV=production node build/app",
         "pro:test": "cross-env NODE_CONFIG_ENV=test_production yarn pro",
@@ -90,6 +91,7 @@
         "@babel/preset-env": "^7.8.6",
         "@babel/runtime": "^7.8.4",
         "babel-eslint": "^10.1.0",
+        "concurrently": "^5.2.0",
         "eslint": "^6.8.0",
         "eslint-config-standard": "^14.1.0",
         "eslint-plugin-flowtype": "^4.7.0",
