@@ -1,10 +1,13 @@
 import {STRING, TEXT, UUID, INTEGER, UUIDV4} from 'sequelize';
 import passwordUtil from '../util/password-util';
+// import API_TYPE from '../util/common-api-types';
 
 export default {
     // 作为表的注释，options.comment; swagger 可以用到
     name: '用户',
-    commonApi: true, // TODO 数组 指定具体接口 getAll getOne getDetail save update deleteAll deleteOne
+    commonApi: true,
+    // commonApi: [API_TYPE.findAll, API_TYPE.findById],
+    // allowInclude: true, // 查询结果是否进行关联，默认true
     // swagger 可以用到
     description: '用户模块',
     attributes: {

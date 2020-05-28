@@ -240,7 +240,10 @@ export default class RestFullController {
         if (include !== true && include !== 'true') return undefined;
 
         const {entityConfig} = ctx.$entityModel;
-        const {hasOne, hasMany, belongsTo, belongsToMany} = entityConfig;
+        const {hasOne, hasMany, belongsTo, belongsToMany, allowInclude} = entityConfig;
+
+        // 如果后端配置了 allowInclude 后端 allowInclude 优先级高
+        if (!allowInclude) return undefined;
 
         const includeArr = [];
         const keys = ['belongsToMany', 'hasMany'];

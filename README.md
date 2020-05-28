@@ -91,6 +91,9 @@ module.exports = {
     options: {}, // 参考 sequelize
     forceSync: true, // 开发时，强制同步数据库
     commonApi: false, // 此实体是否提供通用restful接口，默认 false
+    // commonApi: true, // 此实体将提供所有通用接口
+    // commonApi: [API_TYPE.findAll, API_TYPE.findById], // 此实体将提供部分通用接口
+    allowInclude: true, // 返回给前端的数据是否包含关联关系，默认true，优先级高于前端的include参数
     excludeFields: [], // 不给前端返回的字段
     excludeValidateFields: [], // 不参与后端校验的字段
     queryFields: ['account', {field: 'position', like: false, required: true}], // queryFields: [] 指定查询条件字段， like默认为true，进行模糊查询; queryFields: true 所有字段参与查询条件，默认为true

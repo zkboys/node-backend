@@ -15,7 +15,7 @@ const dir = path.resolve(__dirname, '**/*.js');
 // 相对root的文件路径
 const ignoreFiles = []; // ['./index.js', './util.js', './init-database.js'];
 
-// 自动加载entity下的文件
+// 自动加载entity下的文件 并统一默认值，统一各种写法输出
 const entities = loadFile({
     dir,
     root,
@@ -48,6 +48,8 @@ const entities = loadFile({
         if (!('commonApi' in content)) content.commonApi = false;
 
         if (!('queryFields' in content)) content.queryFields = true;
+
+        if (!('allowInclude' in content)) content.allowInclude = true;
 
         // 统一转化
         // 单个字符串情况

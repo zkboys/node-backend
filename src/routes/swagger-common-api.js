@@ -1,6 +1,7 @@
 const inflection = require('inflection');
 const entities = require('../entities');
 const dbTypeToSwagger = require('../util/dbtype-to-swagger');
+const API_TYPE = require('../util/common-api-types');
 
 // 通用restful接口 swagger文档
 module.exports = function commonApi() {
@@ -39,7 +40,13 @@ module.exports = function commonApi() {
 
         const properties = getProperties(entityConfig);
 
-        result.push({
+        const hasApi = (type) => {
+            if (commonApi === true) return true;
+
+            if (Array.isArray(commonApi)) return commonApi.includes(type);
+        };
+
+        hasApi(API_TYPE.findAll) && result.push({
             apiPath: `/${pluralizeName}`,
             apiMethod: 'get',
             summary: `查询「${name}」`,
@@ -70,7 +77,8 @@ module.exports = function commonApi() {
             },
             classOptions,
         });
-        result.push({
+
+        hasApi(API_TYPE.findOne) && result.push({
             apiPath: `/one/${pluralizeName}`,
             apiMethod: 'get',
             summary: `查询单个「${name}」`,
@@ -88,7 +96,8 @@ module.exports = function commonApi() {
             query,
             classOptions,
         });
-        result.push({
+
+        hasApi(API_TYPE.findById) && result.push({
             apiPath: `/${pluralizeName}/:id`,
             apiMethod: 'get',
             summary: `根据id查询单个「${name}」`,
@@ -112,7 +121,8 @@ module.exports = function commonApi() {
             },
             classOptions,
         });
-        result.push({
+
+        hasApi(API_TYPE.save) && result.push({
             apiPath: `/${pluralizeName}`,
             apiMethod: 'post',
             summary: `添加「${name}」`,
@@ -133,7 +143,8 @@ module.exports = function commonApi() {
             }),
             classOptions,
         });
-        result.push({
+
+        hasApi(API_TYPE.update) && result.push({
             apiPath: `/${pluralizeName}`,
             apiMethod: 'put',
             summary: `更新「${name}」`,
@@ -154,7 +165,8 @@ module.exports = function commonApi() {
             }),
             classOptions,
         });
-        result.push({
+
+        hasApi(API_TYPE.deleteById) && result.push({
             apiPath: `/${pluralizeName}/:id`,
             apiMethod: 'del',
             summary: `根据id删除「${name}」`,
@@ -174,7 +186,8 @@ module.exports = function commonApi() {
             },
             classOptions,
         });
-        result.push({
+
+        hasApi(API_TYPE.deleteByIds) && result.push({
             apiPath: `/${pluralizeName}`,
             apiMethod: 'del',
             summary: `批量删除「${name}」`,
